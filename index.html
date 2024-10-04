@@ -1,0 +1,36 @@
+                <!DOCTYPE html>
+                <html lang="fr">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Application de Textes</title>
+                    <link rel="stylesheet" href="style.css">
+                </head>
+                <body>
+                    <div class="container">
+                        <h1>Test de versets</h1>
+
+                        <!-- Section centrale pour sélectionner un texte -->
+                        <div class="central-section">
+                            <button id="selectBtn">Sélectionner un verset </button>
+                            <p id="selectedText">Aucun verset sélectionné</p>
+                            <button id="revealBtn" disabled>Révéler le verset</button>
+                            <p id="revealedText"></p>
+                        </div>
+
+                        <!-- Section pour ajouter un texte -->
+                        <h2>Ajouter un nouveau verset</h2>
+                        <input type="text" id="newText" placeholder="Nouveau verset">
+                        <input type="text" id="newSubText" placeholder="Nouveau contenue">
+                        <button id="addBtn">Ajouter</button>
+
+                        <!-- Bouton pour afficher tous les textes -->
+                        <h2>Voir tous les versets</h2>
+                        <button id="viewAllBtn">Afficher tous les versets</button>
+                        <ul id="allTexts"></ul>
+                    </div>
+
+                    <script src="script.js"></script>
+                </body>
+                </html>
+ 

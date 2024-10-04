@@ -1,0 +1,92 @@
+body {
+  font-family: 'Montserrat', sans-serif; /* Modern font choice */
+  background-color: #f5f5f5;
+  text-align: center;
+  padding: 20px;
+}
+
+.container {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 12px; /* Larger border radius for a softer look */
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.central-section {
+  background-color: #ffE769; /* A more vibrant yellow */
+  padding: 20px;
+  border-radius: 12px;
+  margin: 20px 0;
+}
+
+button {
+  padding: 10px 20px;
+  margin: 10px;
+  border: none;
+  background-color: #007BFF;
+  color: white;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 1em;
+  transition: background-color 0.3s ease-in-out; /* Smooth transition */
+}
+
+button:hover {
+  background-color: #0066ff; /* Hover effect */
+}
+
+input {
+  padding: 10px;
+  margin: 5px;
+  width: 80%;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 20px 0;
+}
+
+li {
+  padding: 15px; /* Increased padding for more space */
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin: 5px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+li button {
+  background-color: #dc3545;
+  padding: 5px 10px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease-in-out;
+}
+
+li button:hover {
+  background-color: #b02030;
+}
+
+/* Styles for selected texts */
+#selectedText {
+  font-size: 1.8em;
+  margin: 10px 0;
+  color: white;
+}
+
+#revealedText {
+  font-size: 1.3em;
+  margin: 10px 0;
+  color: white;
+}
+
+/* Reduced font size for better readability */
+#allTexts li {
+  font-size: 1.1em;
+} 
