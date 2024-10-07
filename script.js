@@ -39,7 +39,7 @@ function checkSecurityCode(actionCallback) {
         alert("Code de sécurité incorrect !");
     }
 }
-
+ 
 let selectedTexts = [];
 let currentText = null;
 
