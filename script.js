@@ -25,23 +25,16 @@ let texts = [
     { texte: "Acte 9:15", sous_texte: "Mais le Seigneur lui dit: Va, car cet homme est un instrument que j’ai choisi, pour porter mon nom devant les nations, devant les rois, et devant les fils d’Israël" },
 ];
 
-const securityHash = '81fe8bfe87576c3ecb22426f8e57847382917acf';  
-
-
-function hashCode(str) {
-    return CryptoJS.SHA1(str).toString();  // Utiliser CryptoJS pour hasher
-}
-
 // Sauvegarder les données dans le LocalStorage
 function saveToLocalStorage() {
     localStorage.setItem('texts', JSON.stringify(texts));
 }
 
-// Fonction pour vérifier le code de sécurité
+// Vérifier le code de sécurité
 function checkSecurityCode(actionCallback) {
     const code = prompt("Entrez le code de sécurité pour effectuer cette action :");
-    if (hashCode(code) === securityHash) {
-        actionCallback(); // Exécuter l'action si le code est correct
+    if (code === "Jean") {
+        actionCallback(); // Exécute l'action si le code est correct
     } else {
         alert("Code de sécurité incorrect !");
     }
@@ -184,3 +177,5 @@ document.getElementById('revealBtn').addEventListener('click', revealSubText);
 document.getElementById('addBtn').addEventListener('click', addText);
 document.getElementById('viewAllBtn').addEventListener('click', viewAllTexts);
 document.getElementById('updateBtn').addEventListener('click', updateText);
+
+ 
