@@ -21,6 +21,8 @@ let texts = [
     { texte: "Apocalypse 21:6", sous_texte: "Et il me dit: C’est fait! Je suis l’alpha et l’oméga, le commencement et la fin. A celui qui a soif je donnerai de la source de l’eau de la vie, gratuitement." },
     { texte: "2 Timothée 3:16-17", sous_texte: "Toute Écriture est inspirée de Dieu, et utile pour enseigner, pour convaincre, pour corriger, pour instruire dans la justice, afin que l’homme de Dieu soit accompli et propre à toute bonne œuvre." },
     { texte: "1 Corinthiens 10:11", sous_texte: "Ces choses leur sont arrivées pour servir d’exemples, et elles ont été écrites pour notre instruction, à nous qui sommes parvenus à la fin des siècles." }
+    { texte: "2 Timothée 2:20-21", sous_texte: "«Dans une grande maison, il n’y a pas seulement des vases d’or et d’argent, mais il y en a aussi de bois et de terre; les uns sont des vases d’honneur, et les autres sont d’un usage vil. Si donc quelqu’un se conserve pur, en s’abstenant de ces choses, il sera un vase d’honneur, sanctifié, utile à son maître, propre à toute bonne œuvre" },
+    { texte: "Acte 9:15", sous_texte: "{ texte: "«Mais le Seigneur lui dit: Va, car cet homme est un instrument que j’ai choisi, pour porter mon nom devant les nations, devant les rois, et devant les fils d’Israël" },
 ];
 
 const securityHash = '81fe8bfe87576c3ecb22426f8e57847382917acf';  
