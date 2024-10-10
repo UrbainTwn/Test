@@ -24,6 +24,9 @@ let texts = [
     { texte: "2 Timothée 2:20-21", sous_texte: "Dans une grande maison, il n’y a pas seulement des vases d’or et d’argent, mais il y en a aussi de bois et de terre; les uns sont des vases d’honneur, et les autres sont d’un usage vil. Si donc quelqu’un se conserve pur, en s’abstenant de ces choses, il sera un vase d’honneur, sanctifié, utile à son maître, propre à toute bonne œuvre." },
     { texte: "Acte 9:15", sous_texte: "Mais le Seigneur lui dit: Va, car cet homme est un instrument que j’ai choisi, pour porter mon nom devant les nations, devant les rois, et devant les fils d’Israël." },
     { texte: "proverbes 24:12", sous_texte: "Si tu dis: Ah! Nous ne savions pas!… Celui qui pèse les cœurs ne le voit-il pas? Celui qui veille sur ton âme ne le connaît-il pas? Et ne rendra-t-il pas à chacun selon ses œuvres?" },
+    { texte: "Actes 13:26-27" , sous_texte: "Hommes frères, fils de la race d’Abraham, et vous qui craignez Dieu, c’est à vous que cette parole de salut a été envoyée. Car les habitants de Jérusalem et leurs chefs ont méconnu Jésus, et, en le condamnant, ils ont accompli les paroles des prophètes qui se lisent chaque sabbat." },
+    { texte: "Mt 13:33" , sous_texte: "Il leur dit cette autre parabole: Le royaume des cieux est semblable à du levain qu’une femme a pris et mis dans trois mesures de farine, jusqu’à ce que la pâte soit toute levée." },
+    { texte: "Jacques 1:12" , sous_texte: " Heureux l’homme qui supporte patiemment la tentation; car, après avoir été éprouvé, il recevra la couronne de vie, que le Seigneur a promise à ceux qui l’aiment..LSG" },
         ];
 
 // Sauvegarder les données dans le LocalStorage
