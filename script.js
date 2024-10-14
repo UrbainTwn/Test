@@ -29,6 +29,7 @@ let texts = [
     { texte: "Jacques 1:12" , sous_texte: " Heureux l’homme qui supporte patiemment la tentation; car, après avoir été éprouvé, il recevra la couronne de vie, que le Seigneur a promise à ceux qui l’aiment..LSG" },
     { texte: "Apocalypse 2:26-27" , sous_texte: " À celui qui vaincra, et qui gardera jusqu’à la fin mes œuvres, je donnerai autorité sur les nations. Il les paîtra avec une verge de fer, comme on brise les vases d’argile, ainsi que moi-même j’en ai reçu le pouvoir de mon Père." },
     { texte: "Jérémie 23:29" , sous_texte: " Ma parole n’est-elle pas comme un feu, dit l’Éternel, Et comme un marteau qui brise le roc ? " },
+    { texte: "Luc 12:49" , sous_texte: " Je suis venu jeter un feu sur la terre, et qu’ai-je à désirer, s’il est déjà allumé ? " },
         ];
 
 // Sauvegarder les données dans le LocalStorage
