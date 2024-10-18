@@ -30,6 +30,9 @@ let texts = [
     { texte: "Apocalypse 2:26-27" , sous_texte: " À celui qui vaincra, et qui gardera jusqu’à la fin mes œuvres, je donnerai autorité sur les nations. Il les paîtra avec une verge de fer, comme on brise les vases d’argile, ainsi que moi-même j’en ai reçu le pouvoir de mon Père." },
     { texte: "Jérémie 23:29" , sous_texte: " Ma parole n’est-elle pas comme un feu, dit l’Éternel, Et comme un marteau qui brise le roc ? " },
     { texte: "Luc 12:49" , sous_texte: " Je suis venu jeter un feu sur la terre, et qu’ai-je à désirer, s’il est déjà allumé ? " },
+    { texte: "Jean 9:5" , sous_texte: " Pendant que je suis dans le monde, je suis la lumière du monde." },
+    { texte: "Jean 1:1-5" , sous_texte: " Au commencement était la Parole, et la Parole était avec Dieu, et la Parole était Dieu. Elle était au commencement avec Dieu. Toutes choses ont été faites par elle, et rien de ce qui a été fait n’a été fait sans elle. En elle était la vie, et la vie était la lumière des hommes. La lumière luit dans les ténèbres, et les ténèbres ne l’ont point reçue. " },
+
         ];
 
 // Sauvegarder les données dans le LocalStorage
