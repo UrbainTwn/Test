@@ -36,6 +36,7 @@ let texts = [
     { texte: "Ap 1:20" , sous_texte: "le mystère des sept étoiles que tu as vues dans ma main droite, et des sept chandeliers d’or. Les sept étoiles sont les anges des sept Églises, et les sept chandeliers sont les sept Églises..LSG" },
     { texte: "Ap 3:17-18" , sous_texte: "Parce que tu dis: Je suis riche, je me suis enrichi, et je n’ai besoin de rien, et parce que tu ne sais pas que tu es malheureux, misérable, pauvre, aveugle et nu, je te conseille d’acheter de moi de l’or éprouvé par le feu, afin que tu deviennes riche, et des vêtements blancs, afin que tu sois vêtu et que la honte de ta nudité ne paraisse pas, et un collyre pour oindre tes yeux, afin que tu voies." },
     { texte: "Ap 3:22" , sous_texte: "Que celui qui a des oreilles entende ce que l’Esprit dit aux Églises!." },
+    { texte: "Jean 3:5" , sous_texte: "Jésus répondit: En vérité, en vérité, je te le dis, si un homme ne naît d’eau et d’Esprit, il ne peut entrer dans le royaume de Dieu." },
         ];
 
 // Sauvegarder les données dans le LocalStorage
