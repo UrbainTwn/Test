@@ -32,7 +32,10 @@ let texts = [
     { texte: "Luc 12:49" , sous_texte: " Je suis venu jeter un feu sur la terre, et qu’ai-je à désirer, s’il est déjà allumé ? " },
     { texte: "Jean 9:5" , sous_texte: " Pendant que je suis dans le monde, je suis la lumière du monde." },
     { texte: "Jean 1:1-5" , sous_texte: " Au commencement était la Parole, et la Parole était avec Dieu, et la Parole était Dieu. Elle était au commencement avec Dieu. Toutes choses ont été faites par elle, et rien de ce qui a été fait n’a été fait sans elle. En elle était la vie, et la vie était la lumière des hommes. La lumière luit dans les ténèbres, et les ténèbres ne l’ont point reçue. " },
-
+    { texte: "Ap 1:1" , sous_texte: "Révélation de Jésus-Christ, que Dieu lui a donnée pour montrer à ses serviteurs les choses qui doivent arriver bientôt, et qu’il a fait connaître, par l’envoi de son ange, à son serviteur Jean" },
+    { texte: "Ap 1:20" , sous_texte: "le mystère des sept étoiles que tu as vues dans ma main droite, et des sept chandeliers d’or. Les sept étoiles sont les anges des sept Églises, et les sept chandeliers sont les sept Églises..LSG" },
+    { texte: "Ap 3:17-18" , sous_texte: "Parce que tu dis: Je suis riche, je me suis enrichi, et je n’ai besoin de rien, et parce que tu ne sais pas que tu es malheureux, misérable, pauvre, aveugle et nu, je te conseille d’acheter de moi de l’or éprouvé par le feu, afin que tu deviennes riche, et des vêtements blancs, afin que tu sois vêtu et que la honte de ta nudité ne paraisse pas, et un collyre pour oindre tes yeux, afin que tu voies." },
+    { texte: "Ap 3:22" , sous_texte: "Que celui qui a des oreilles entende ce que l’Esprit dit aux Églises!." },
         ];
 
 // Sauvegarder les données dans le LocalStorage
