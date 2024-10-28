@@ -1,36 +1,547 @@
-                <!DOCTYPE html>
-                <html lang="fr">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>Application de Textes</title>
-                    <link rel="stylesheet" href="style.css">
-                </head>
-                <body>
-                    <div class="container">
-                        <h1>Test de versets</h1>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz de Versets Bibliques</title>
+    <style>
+        :root {
+            --primary: #4a90e2;
+            --primary-dark: #357abd;
+            --text-primary: #2c3e50;
+            --text-secondary: #666;
+            --bg-light: #f5f6fa;
+            --white: #ffffff;
+        }
 
-                        <!-- Section centrale pour sélectionner un texte -->
-                        <div class="central-section">
-                            <button id="selectBtn">Sélectionner un verset </button>
-                            <p id="selectedText">Aucun verset sélectionné</p>
-                            <button id="revealBtn" disabled>Révéler le verset</button>
-                            <p id="revealedText"></p>
-                        </div>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-                        <!-- Section pour ajouter un texte -->
-                        <h2>Ajouter un nouveau verset</h2>
-                        <input type="text" id="newText" placeholder="Nouveau verset">
-                        <input type="text" id="newSubText" placeholder="Nouveau contenue">
-                        <button id="addBtn">Ajouter</button>
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 20px;
+        }
 
-                        <!-- Bouton pour afficher tous les textes -->
-                        <h2>Voir tous les versets</h2>
-                        <button id="viewAllBtn">Afficher tous les versets</button>
-                        <ul id="allTexts"></ul>
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--white);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+        }
+
+        .timer-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 1%;
+            background: var(--bg-light);
+            border-radius: 8px;
+        }
+
+        .timer-input {
+            width: 80px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .timer-display {
+            font-size: 24px;
+            font-weight: bold;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .verse-section {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            min-height: 200px;
+            border: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .verse-reference {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .verse-content {
+            font-size: 1.2em;
+            text-align: center;
+            font-style: italic;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .verse-content.visible {
+            opacity: 1;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-light);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: #e0e0e0;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--bg-light);
+            border-radius: 8px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+        }
+
+        .verse-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .verse-list.visible {
+            display: block;
+        }
+
+        .verse-list-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .verse-list-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Quiz de Versets Bibliques</h1>
+            <p>Apprenez et méditez sur la Parole de Dieu</p>
+        </div>
+
+        <div class="timer-section">
+            <label for="timer-input">Temps (secondes):</label>
+            <input type="number" id="timer-input" class="timer-input" value="60" min="1">
+            <button id="timer-toggle" class="btn btn-secondary">⏸️</button>
+            <div id="timer-display" class="timer-display">60</div>
+        </div>
+
+        <div class="verse-section">
+            <div id="verse-reference" class="verse-reference">Cliquez sur "Nouveau Verset" pour commencer</div>
+            <div id="verse-content" class="verse-content"></div>
+        </div>
+
+        <div class="button-group">
+            <button id="new-verse" class="btn btn-primary">🔄 Nouveau Verset</button>
+            <button id="toggle-verse" class="btn btn-secondary">👁️ Révéler le Verset</button>
+            <button id="toggle-list" class="btn btn-secondary">📝 Voir la Liste</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div id="verses-seen" class="stat-value">0</div>
+                <div class="stat-label">Versets vus</div>
+            </div>
+            <div class="stat-item">
+                <div id="verses-remaining" class="stat-value">5</div>
+                <div class="stat-label">Versets restants</div>
+            </div>
+        </div>
+
+        <div id="verse-list" class="verse-list"></div>
+    </div>
+
+    <script>
+        // Base de données des versets
+      const versets = [
+          {
+              id: 1,
+              reference: "2 Timothée 4:18",
+              contenu: "Le Seigneur me délivrera de toute œuvre mauvaise, et il me sauvera pour me faire entrer dans son royaume céleste. A lui soit la gloire aux siècles des siècles! Amen!"
+          },
+          {
+              id: 2,
+              reference: "Jacques 1:18",
+              contenu: "Il nous a engendrés selon sa volonté, par la parole de vérité, afin que nous soyons en quelque sorte les prémices de ses créatures."
+          },
+          {
+              id: 3,
+              reference: "Matthieu 24:45-47",
+              contenu: "Quel est donc le serviteur fidèle et prudent, que son maître a établi sur ses gens, pour leur donner la nourriture au temps convenable? Heureux ce serviteur, que son maître, à son arrivée, trouvera faisant ainsi! Je vous le dis en vérité, il l'établira sur tous ses biens."
+          },
+          {
+              id: 4,
+              reference: "Jean 14:29",
+              contenu: "Et maintenant je vous ai dit ces choses avant qu'elles arrivent, afin que, lorsqu'elles arriveront, vous croyiez."
+          },
+          {
+              id: 5,
+              reference: "2 Pierre 1:21",
+              contenu: "Car ce n'est pas par une volonté d'homme qu'une prophétie a jamais été apportée, mais c'est poussés par le Saint-Esprit que des hommes ont parlé de la part de Dieu."
+          },
+          {
+              id: 6,
+              reference: "Exode 19:5-6",
+              contenu: "Maintenant, si vous écoutez ma voix, et si vous gardez mon alliance, vous m'appartiendrez entre tous les peuples, car toute la terre est à moi; vous serez pour moi un royaume de sacrificateurs et une nation sainte.Voilà les paroles que tu diras aux enfants d'Israël"
+          },
+          {
+              id: 7,
+              reference: "Ésaïe 14:12-15",
+              contenu: "Te voilà tombé du ciel, Astre brillant, fils de l'aurore! Tu es abattu à terre, Toi, le vainqueur des nations! Tu disais en ton cœur: Je monterai au ciel, J'élèverai mon trône au-dessus des étoiles de Dieu; Je m'assiérai sur la montagne de l'assemblée, A l'extrémité du septentrion; Je monterai sur le sommet des nues, Je serai semblable au Très-Haut. Mais tu as été précipité dans le séjour des morts, Dans les profondeurs de la fosse."
+          },
+          {
+              id: 8,
+              reference: "1 Jean 4:1",
+              contenu: "Bien-aimés, n'ajoutez pas foi à tout esprit; mais éprouvez les esprits, pour savoir s'ils sont de Dieu, car plusieurs faux prophètes sont venus dans le monde."
+          },
+          {
+              id: 9,
+              reference: "Jean 4:24",
+              contenu: "Dieu est Esprit, et il faut que ceux qui l'adorent l'adorent en esprit et en vérité."
+          },
+          {
+              id: 10,
+              reference: "Jean 1:1",
+              contenu: "Au commencement était la Parole, et la Parole était avec Dieu, et la Parole était Dieu."
+          },
+          {
+              id: 11,
+              reference: "Genèse 1:1",
+              contenu: "Au commencement, Dieu créa les cieux et la terre."
+          },
+          {
+              id: 12,
+              reference: "Matthieu 3:16",
+              contenu: "Dès que Jésus eut été baptisé, il sortit de l'eau. Et voici, les cieux s'ouvrirent, et il vit l'Esprit de Dieu descendre comme une colombe et venir sur lui."
+          },
+          {
+              id: 13,
+              reference: "Ézékiel 47:12",
+              contenu: "Sur le torrent, sur ses bords de chaque côté, croîtront toutes sortes d'arbres fruitiers. Leur feuillage ne se flétrira point, et leurs fruits n'auront point de fin, ils mûriront tous les mois, parce que les eaux sortiront du sanctuaire. Leurs fruits serviront de nourriture, et leurs feuilles de remède."
+          },
+          {
+              id: 14,
+              reference: "Jean 15:5",
+              contenu: "Je suis le cep, vous êtes les sarments. Celui qui demeure en moi et en qui je demeure porte beaucoup de fruit, car sans moi vous ne pouvez rien faire."
+          },
+          {
+              id: 15,
+              reference: "Ésaïe 5:7",
+              contenu: "La vigne de l'Éternel des armées, c'est la maison d'Israël, Et les hommes de Juda, c'est le plant qu'il chérissait. Il avait espéré de la droiture, et voici du sang versé! De la justice, et voici des cris de détresse!"
+          },
+          {
+              id: 16,
+              reference: "Matthieu 13:31-32",
+              contenu: "Il leur proposa une autre parabole, et il dit: Le royaume des cieux est semblable à un grain de sénevé qu'un homme a pris et semé dans son champ. C'est la plus petite de toutes les semences; mais, quand il a poussé, il est plus grand que les légumes et devient un arbre, de sorte que les oiseaux du ciel viennent habiter dans ses branches."
+          },
+          {
+              id: 17,
+              reference: "Jean 1:12-13",
+              contenu: "Mais à tous ceux qui l'ont reçue, à ceux qui croient en son nom, elle a donné le pouvoir de devenir enfants de Dieu, lesquels sont nés, non du sang, ni de la volonté de la chair, ni de la volonté de l'homme, mais de Dieu."
+          },
+          {
+              id: 18,
+              reference: "Matthieu 13:10-11",
+              contenu: "Les disciples s'approchèrent, et lui dirent: Pourquoi leur parles-tu en paraboles? Jésus leur répondit: Parce qu'il vous a été donné de connaître les mystères du royaume des cieux, et que cela ne leur a pas été donné."
+          },
+          {
+              id: 19,
+              reference: "Luc 22:20",
+              contenu: "Il prit de même la coupe, après le souper, et la leur donna, en disant: Cette coupe est la nouvelle alliance en mon sang, qui est répandu pour vous."
+          },
+          {
+              id: 20,
+              reference: "Apocalypse 21:6",
+              contenu: "Et il me dit: C'est fait! Je suis l'alpha et l'oméga, le commencement et la fin. A celui qui a soif je donnerai de la source de l'eau de la vie, gratuitement."
+          },
+          {
+              id: 21,
+              reference: "2 Timothée 3:16-17",
+              contenu: "Toute Écriture est inspirée de Dieu, et utile pour enseigner, pour convaincre, pour corriger, pour instruire dans la justice, afin que l'homme de Dieu soit accompli et propre à toute bonne œuvre."
+          },
+          {
+              id: 22,
+              reference: "1 Corinthiens 10:11",
+              contenu: "Ces choses leur sont arrivées pour servir d'exemples, et elles ont été écrites pour notre instruction, à nous qui sommes parvenus à la fin des siècles."
+          },
+          {
+              id: 23,
+              reference: "2 Timothée 2:20-21",
+              contenu: "Dans une grande maison, il n'y a pas seulement des vases d'or et d'argent, mais il y en a aussi de bois et de terre; les uns sont des vases d'honneur, et les autres sont d'un usage vil. Si donc quelqu'un se conserve pur, en s'abstenant de ces choses, il sera un vase d'honneur, sanctifié, utile à son maître, propre à toute bonne œuvre."
+          },
+          {
+              id: 24,
+              reference: "Acte 9:15",
+              contenu: "Mais le Seigneur lui dit: Va, car cet homme est un instrument que j'ai choisi, pour porter mon nom devant les nations, devant les rois, et devant les fils d'Israël."
+          },
+          {
+              id: 25,
+              reference: "Proverbes 24:12",
+              contenu: "Si tu dis: Ah! Nous ne savions pas!… Celui qui pèse les cœurs ne le voit-il pas? Celui qui veille sur ton âme ne le connaît-il pas? Et ne rendra-t-il pas à chacun selon ses œuvres?"
+          },
+          {
+              id: 26,
+              reference: "Actes 13:26-27",
+              contenu: "Hommes frères, fils de la race d'Abraham, et vous qui craignez Dieu, c'est à vous que cette parole de salut a été envoyée. Car les habitants de Jérusalem et leurs chefs ont méconnu Jésus, et, en le condamnant, ils ont accompli les paroles des prophètes qui se lisent chaque sabbat."
+          },
+          {
+              id: 27,
+              reference: "Matthieu 13:33",
+              contenu: "Il leur dit cette autre parabole: Le royaume des cieux est semblable à du levain qu'une femme a pris et mis dans trois mesures de farine, jusqu'à ce que la pâte soit toute levée."
+          },
+          {
+              id: 28,
+              reference: "Jacques 1:12",
+              contenu: "Heureux l'homme qui supporte patiemment la tentation; car, après avoir été éprouvé, il recevra la couronne de vie, que le Seigneur a promise à ceux qui l'aiment."
+          },
+          {
+              id: 29,
+              reference: "Apocalypse 2:26-27",
+              contenu: "À celui qui vaincra, et qui gardera jusqu'à la fin mes œuvres, je donnerai autorité sur les nations. Il les paîtra avec une verge de fer, comme on brise les vases d'argile, ainsi que moi-même j'en ai reçu le pouvoir de mon Père."
+          },
+          {
+              id: 30,
+              reference: "Jérémie 23:29",
+              contenu: "Ma parole n'est-elle pas comme un feu, dit l'Éternel, Et comme un marteau qui brise le roc?"
+          },
+          {
+              id: 31,
+              reference: "Luc 12:49",
+              contenu: "Je suis venu jeter un feu sur la terre, et qu'ai-je à désirer, s'il est déjà allumé?"
+          },
+          {
+              id: 32,
+              reference: "Jean 9:5",
+              contenu: "Pendant que je suis dans le monde, je suis la lumière du monde."
+          },
+          {
+              id: 33,
+              reference: "Jean 1:1-5",
+              contenu: "Au commencement était la Parole, et la Parole était avec Dieu, et la Parole était Dieu. Elle était au commencement avec Dieu. Toutes choses ont été faites par elle, et rien de ce qui a été fait n'a été fait sans elle. En elle était la vie, et la vie était la lumière des hommes. La lumière luit dans les ténèbres, et les ténèbres ne l'ont point reçue."
+          },
+          {
+              id: 34,
+              reference: "Apocalypse 1:1",
+              contenu: "Révélation de Jésus-Christ, que Dieu lui a donnée pour montrer à ses serviteurs les choses qui doivent arriver bientôt, et qu'il a fait connaître, par l'envoi de son ange, à son serviteur Jean"
+          },
+          {
+              id: 35,
+              reference: "Apocalypse 1:20",
+              contenu: "Le mystère des sept étoiles que tu as vues dans ma main droite, et des sept chandeliers d'or. Les sept étoiles sont les anges des sept Églises, et les sept chandeliers sont les sept Églises."
+          },
+          {
+              id: 36,
+              reference: "Apocalypse 3:17-18",
+              contenu: "Parce que tu dis: Je suis riche, je me suis enrichi, et je n'ai besoin de rien, et parce que tu ne sais pas que tu es malheureux, misérable, pauvre, aveugle et nu, je te conseille d'acheter de moi de l'or éprouvé par le feu, afin que tu deviennes riche, et des vêtements blancs, afin que tu sois vêtu et que la honte de ta nudité ne paraisse pas, et un collyre pour oindre tes yeux, afin que tu voies."
+          },
+          {
+              id: 37,
+              reference: "Apocalypse 3:22",
+              contenu: "Que celui qui a des oreilles entende ce que l'Esprit dit aux Églises!"
+          },
+          {
+              id: 38,
+              reference: "Jean 3:5",
+              contenu: "Jésus répondit: En vérité, en vérité, je te le dis, si un homme ne naît d'eau et d'Esprit, il ne peut entrer dans le royaume de Dieu."
+          }
+        
+      ];
+        // État de l'application
+        let versetsNonUtilises = [...versets];
+        let versetActuel = null;
+        let timerInterval = null;
+        let isTimerRunning = false;
+        let versetVisible = false;
+        let versetsSeen = 0;
+
+        // Éléments du DOM
+        const timerInput = document.getElementById('timer-input');
+        const timerDisplay = document.getElementById('timer-display');
+        const timerToggle = document.getElementById('timer-toggle');
+        const verseReference = document.getElementById('verse-reference');
+        const verseContent = document.getElementById('verse-content');
+        const newVerseBtn = document.getElementById('new-verse');
+        const toggleVerseBtn = document.getElementById('toggle-verse');
+        const toggleListBtn = document.getElementById('toggle-list');
+        const versesList = document.getElementById('verse-list');
+        const versesSeeDisplay = document.getElementById('verses-seen');
+        const versesRemainingDisplay = document.getElementById('verses-remaining');
+
+        // Fonctions
+        function getRandomVerse() {
+            if (versetsNonUtilises.length === 0) {
+                versetsNonUtilises = [...versets];
+            }
+            
+            const randomIndex = Math.floor(Math.random() * versetsNonUtilises.length);
+            const verse = versetsNonUtilises[randomIndex];
+            versetsNonUtilises.splice(randomIndex, 1);
+            
+            return verse;
+        }
+
+        function updateTimer() {
+            const currentTime = parseInt(timerDisplay.textContent);
+            if (currentTime > 0) {
+                timerDisplay.textContent = currentTime - 1;
+            } else {
+                stopTimer();
+            }
+        }
+
+        function startTimer() {
+            if (!isTimerRunning) {
+                isTimerRunning = true;
+                timerToggle.textContent = '⏸️';
+                timerInterval = setInterval(updateTimer, 1000);
+            }
+        }
+
+        function stopTimer() {
+            if (isTimerRunning) {
+                isTimerRunning = false;
+                timerToggle.textContent = '▶️';
+                clearInterval(timerInterval);
+            }
+        }
+
+        function resetTimer() {
+            stopTimer();
+            timerDisplay.textContent = timerInput.value;
+        }
+
+        function updateStats() {
+            versesSeeDisplay.textContent = versetsSeen;
+            versesRemainingDisplay.textContent = versetsNonUtilises.length;
+        }
+
+        // Gestionnaires d'événements
+        newVerseBtn.addEventListener('click', () => {
+            versetActuel = getRandomVerse();
+            verseReference.textContent = versetActuel.reference;
+            verseContent.textContent = versetActuel.contenu;
+            verseContent.classList.remove('visible');
+            versetVisible = false;
+            versetsSeen++;
+            updateStats();
+            resetTimer();
+            startTimer();
+        });
+
+        toggleVerseBtn.addEventListener('click', () => {
+            versetVisible = !versetVisible;
+            verseContent.classList.toggle('visible');
+            toggleVerseBtn.textContent = versetVisible ? '🙈 Cacher le Verset' : '👁️ Révéler le Verset';
+        });
+
+        toggleListBtn.addEventListener('click', () => {
+            versesList.classList.toggle('visible');
+            toggleListBtn.textContent = versesList.classList.contains('visible') ? '📝 Cacher la Liste' : '📝 Voir la Liste';
+            
+            if (versesList.classList.contains('visible')) {
+                versesList.innerHTML = versets.map(verse => `
+                    <div class="verse-list-item">
+                        <strong>${verse.reference}</strong>
+                        <p>${verse.contenu}</p>
                     </div>
+                `).join('');
+            }
+        });
 
-                    <script src="script.js"></script>
-                </body>
-                </html>
- 
+        timerToggle.addEventListener('click', () => {
+            if (isTimerRunning) {
+                stopTimer();
+            } else {
+                startTimer();
+            }
+        });
+
+        timerInput.addEventListener('change', () => {
+            resetTimer();
+        });
+
+        // Initialisation des statistiques
+        updateStats();
+    </script>
+</body>
+</html>
