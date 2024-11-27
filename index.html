@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -190,6 +189,36 @@
         .verse-list-item:last-child {
             border-bottom: none;
         }
+        .audio-controls {
+            background: var(--bg-light);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .audio-settings {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .audio-setting {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .audio-setting label {
+            color: var(--text-secondary);
+        }
+
+        .audio-setting select,
+        .audio-setting input {
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
@@ -230,249 +259,270 @@
 
         <div id="verse-list" class="verse-list"></div>
     </div>
-
+    <div class="audio-controls">
+            <div class="button-group">
+                <button id="play-audio" class="btn btn-primary">🔊 Lire</button>
+                <button id="stop-audio" class="btn btn-secondary">⏹️ Arrêter</button>
+            </div>
+            <div class="audio-settings">
+                <div class="audio-setting">
+                    <label for="voice-select">Voix:</label>
+                    <select id="voice-select"></select>
+                </div>
+                <div class="audio-setting">
+                    <label for="speed-range">Vitesse:</label>
+                    <input type="range" id="speed-range" min="0.5" max="2" step="0.1" value="1">
+                    <span id="speed-value">1.0x</span>
+                </div>
+                <div class="audio-setting">
+                    <label for="loop-checkbox">Répéter:</label>
+                    <input type="checkbox" id="loop-checkbox">
+                </div>
+            </div>
+        </div>
+    </div>
     <script>
         // Base de données des versets
-      const versets = [
-          {
-              id: 1,
-              reference: "2 Timothée 4:18",
-              contenu: "Le Seigneur me délivrera de toute œuvre mauvaise, et il me sauvera pour me faire entrer dans son royaume céleste. A lui soit la gloire aux siècles des siècles! Amen!"
-          },
-          {
-              id: 2,
-              reference: "Jacques 1:18",
-              contenu: "Il nous a engendrés selon sa volonté, par la parole de vérité, afin que nous soyons en quelque sorte les prémices de ses créatures."
-          },
-          {
-              id: 3,
-              reference: "Matthieu 24:45-47",
-              contenu: "Quel est donc le serviteur fidèle et prudent, que son maître a établi sur ses gens, pour leur donner la nourriture au temps convenable? Heureux ce serviteur, que son maître, à son arrivée, trouvera faisant ainsi! Je vous le dis en vérité, il l'établira sur tous ses biens."
-          },
-          {
-              id: 4,
-              reference: "Jean 14:29",
-              contenu: "Et maintenant je vous ai dit ces choses avant qu'elles arrivent, afin que, lorsqu'elles arriveront, vous croyiez."
-          },
-          {
-              id: 5,
-              reference: "2 Pierre 1:21",
-              contenu: "Car ce n'est pas par une volonté d'homme qu'une prophétie a jamais été apportée, mais c'est poussés par le Saint-Esprit que des hommes ont parlé de la part de Dieu."
-          },
-          {
-              id: 6,
-              reference: "Exode 19:5-6",
-              contenu: "Maintenant, si vous écoutez ma voix, et si vous gardez mon alliance, vous m'appartiendrez entre tous les peuples, car toute la terre est à moi; vous serez pour moi un royaume de sacrificateurs et une nation sainte.Voilà les paroles que tu diras aux enfants d'Israël"
-          },
-          {
-              id: 7,
-              reference: "Ésaïe 14:12-15",
-              contenu: "Te voilà tombé du ciel, Astre brillant, fils de l'aurore! Tu es abattu à terre, Toi, le vainqueur des nations! Tu disais en ton cœur: Je monterai au ciel, J'élèverai mon trône au-dessus des étoiles de Dieu; Je m'assiérai sur la montagne de l'assemblée, A l'extrémité du septentrion; Je monterai sur le sommet des nues, Je serai semblable au Très-Haut. Mais tu as été précipité dans le séjour des morts, Dans les profondeurs de la fosse."
-          },
-          {
-              id: 8,
-              reference: "1 Jean 4:1",
-              contenu: "Bien-aimés, n'ajoutez pas foi à tout esprit; mais éprouvez les esprits, pour savoir s'ils sont de Dieu, car plusieurs faux prophètes sont venus dans le monde."
-          },
-          {
-              id: 9,
-              reference: "Jean 4:24",
-              contenu: "Dieu est Esprit, et il faut que ceux qui l'adorent l'adorent en esprit et en vérité."
-          },
-          {
-              id: 10,
-              reference: "Jean 1:1",
-              contenu: "Au commencement était la Parole, et la Parole était avec Dieu, et la Parole était Dieu."
-          },
-          {
-              id: 11,
-              reference: "Genèse 1:1",
-              contenu: "Au commencement, Dieu créa les cieux et la terre."
-          },
-          {
-              id: 12,
-              reference: "Matthieu 3:16",
-              contenu: "Dès que Jésus eut été baptisé, il sortit de l'eau. Et voici, les cieux s'ouvrirent, et il vit l'Esprit de Dieu descendre comme une colombe et venir sur lui."
-          },
-          {
-              id: 13,
-              reference: "Ézékiel 47:12",
-              contenu: "Sur le torrent, sur ses bords de chaque côté, croîtront toutes sortes d'arbres fruitiers. Leur feuillage ne se flétrira point, et leurs fruits n'auront point de fin, ils mûriront tous les mois, parce que les eaux sortiront du sanctuaire. Leurs fruits serviront de nourriture, et leurs feuilles de remède."
-          },
-          {
-              id: 14,
-              reference: "Jean 15:5",
-              contenu: "Je suis le cep, vous êtes les sarments. Celui qui demeure en moi et en qui je demeure porte beaucoup de fruit, car sans moi vous ne pouvez rien faire."
-          },
-          {
-              id: 15,
-              reference: "Ésaïe 5:7",
-              contenu: "La vigne de l'Éternel des armées, c'est la maison d'Israël, Et les hommes de Juda, c'est le plant qu'il chérissait. Il avait espéré de la droiture, et voici du sang versé! De la justice, et voici des cris de détresse!"
-          },
-          {
-              id: 16,
-              reference: "Matthieu 13:31-32",
-              contenu: "Il leur proposa une autre parabole, et il dit: Le royaume des cieux est semblable à un grain de sénevé qu'un homme a pris et semé dans son champ. C'est la plus petite de toutes les semences; mais, quand il a poussé, il est plus grand que les légumes et devient un arbre, de sorte que les oiseaux du ciel viennent habiter dans ses branches."
-          },
-          {
-              id: 17,
-              reference: "Jean 1:12-13",
-              contenu: "Mais à tous ceux qui l'ont reçue, à ceux qui croient en son nom, elle a donné le pouvoir de devenir enfants de Dieu, lesquels sont nés, non du sang, ni de la volonté de la chair, ni de la volonté de l'homme, mais de Dieu."
-          },
-          {
-              id: 18,
-              reference: "Matthieu 13:10-11",
-              contenu: "Les disciples s'approchèrent, et lui dirent: Pourquoi leur parles-tu en paraboles? Jésus leur répondit: Parce qu'il vous a été donné de connaître les mystères du royaume des cieux, et que cela ne leur a pas été donné."
-          },
-          {
-              id: 19,
-              reference: "Luc 22:20",
-              contenu: "Il prit de même la coupe, après le souper, et la leur donna, en disant: Cette coupe est la nouvelle alliance en mon sang, qui est répandu pour vous."
-          },
-          {
-              id: 20,
-              reference: "Apocalypse 21:6",
-              contenu: "Et il me dit: C'est fait! Je suis l'alpha et l'oméga, le commencement et la fin. A celui qui a soif je donnerai de la source de l'eau de la vie, gratuitement."
-          },
-          {
-              id: 21,
-              reference: "2 Timothée 3:16-17",
-              contenu: "Toute Écriture est inspirée de Dieu, et utile pour enseigner, pour convaincre, pour corriger, pour instruire dans la justice, afin que l'homme de Dieu soit accompli et propre à toute bonne œuvre."
-          },
-          {
-              id: 22,
-              reference: "1 Corinthiens 10:11",
-              contenu: "Ces choses leur sont arrivées pour servir d'exemples, et elles ont été écrites pour notre instruction, à nous qui sommes parvenus à la fin des siècles."
-          },
-          {
-              id: 23,
-              reference: "2 Timothée 2:20-21",
-              contenu: "Dans une grande maison, il n'y a pas seulement des vases d'or et d'argent, mais il y en a aussi de bois et de terre; les uns sont des vases d'honneur, et les autres sont d'un usage vil. Si donc quelqu'un se conserve pur, en s'abstenant de ces choses, il sera un vase d'honneur, sanctifié, utile à son maître, propre à toute bonne œuvre."
-          },
-          {
-              id: 24,
-              reference: "Acte 9:15",
-              contenu: "Mais le Seigneur lui dit: Va, car cet homme est un instrument que j'ai choisi, pour porter mon nom devant les nations, devant les rois, et devant les fils d'Israël."
-          },
-          {
-              id: 25,
-              reference: "Proverbes 24:12",
-              contenu: "Si tu dis: Ah! Nous ne savions pas!… Celui qui pèse les cœurs ne le voit-il pas? Celui qui veille sur ton âme ne le connaît-il pas? Et ne rendra-t-il pas à chacun selon ses œuvres?"
-          },
-          {
-              id: 26,
-              reference: "Actes 13:26-27",
-              contenu: "Hommes frères, fils de la race d'Abraham, et vous qui craignez Dieu, c'est à vous que cette parole de salut a été envoyée. Car les habitants de Jérusalem et leurs chefs ont méconnu Jésus, et, en le condamnant, ils ont accompli les paroles des prophètes qui se lisent chaque sabbat."
-          },
-          {
-              id: 27,
-              reference: "Matthieu 13:33",
-              contenu: "Il leur dit cette autre parabole: Le royaume des cieux est semblable à du levain qu'une femme a pris et mis dans trois mesures de farine, jusqu'à ce que la pâte soit toute levée."
-          },
-          {
-              id: 28,
-              reference: "Jacques 1:12",
-              contenu: "Heureux l'homme qui supporte patiemment la tentation; car, après avoir été éprouvé, il recevra la couronne de vie, que le Seigneur a promise à ceux qui l'aiment."
-          },
-          {
-              id: 29,
-              reference: "Apocalypse 2:26-27",
-              contenu: "À celui qui vaincra, et qui gardera jusqu'à la fin mes œuvres, je donnerai autorité sur les nations. Il les paîtra avec une verge de fer, comme on brise les vases d'argile, ainsi que moi-même j'en ai reçu le pouvoir de mon Père."
-          },
-          {
-              id: 30,
-              reference: "Jérémie 23:29",
-              contenu: "Ma parole n'est-elle pas comme un feu, dit l'Éternel, Et comme un marteau qui brise le roc?"
-          },
-          {
-              id: 31,
-              reference: "Luc 12:49",
-              contenu: "Je suis venu jeter un feu sur la terre, et qu'ai-je à désirer, s'il est déjà allumé?"
-          },
-          {
-              id: 32,
-              reference: "Jean 9:5",
-              contenu: "Pendant que je suis dans le monde, je suis la lumière du monde."
-          },
-          {
-              id: 33,
-              reference: "Jean 1:1-5",
-              contenu: "Au commencement était la Parole, et la Parole était avec Dieu, et la Parole était Dieu. Elle était au commencement avec Dieu. Toutes choses ont été faites par elle, et rien de ce qui a été fait n'a été fait sans elle. En elle était la vie, et la vie était la lumière des hommes. La lumière luit dans les ténèbres, et les ténèbres ne l'ont point reçue."
-          },
-          {
-              id: 34,
-              reference: "Apocalypse 1:1",
-              contenu: "Révélation de Jésus-Christ, que Dieu lui a donnée pour montrer à ses serviteurs les choses qui doivent arriver bientôt, et qu'il a fait connaître, par l'envoi de son ange, à son serviteur Jean"
-          },
-          {
-              id: 35,
-              reference: "Apocalypse 1:20",
-              contenu: "Le mystère des sept étoiles que tu as vues dans ma main droite, et des sept chandeliers d'or. Les sept étoiles sont les anges des sept Églises, et les sept chandeliers sont les sept Églises."
-          },
-          {
-              id: 36,
-              reference: "Apocalypse 3:17-18",
-              contenu: "Parce que tu dis: Je suis riche, je me suis enrichi, et je n'ai besoin de rien, et parce que tu ne sais pas que tu es malheureux, misérable, pauvre, aveugle et nu, je te conseille d'acheter de moi de l'or éprouvé par le feu, afin que tu deviennes riche, et des vêtements blancs, afin que tu sois vêtu et que la honte de ta nudité ne paraisse pas, et un collyre pour oindre tes yeux, afin que tu voies."
-          },
-          {
-              id: 37,
-              reference: "Apocalypse 3:22",
-              contenu: "Que celui qui a des oreilles entende ce que l'Esprit dit aux Églises!"
-          },
-          {
-              id: 38,
-              reference: "Jean 3:5",
-              contenu: "Jésus répondit: En vérité, en vérité, je te le dis, si un homme ne naît d'eau et d'Esprit, il ne peut entrer dans le royaume de Dieu."
-          },
-        {
-              id: 39,
-              reference: "Matthieu 13:47-50",
-              contenu: "Le royaume des cieux est encore semblable à un filet jeté dans la mer et ramassant des poissons de toute espèce. Quand il est rempli, les pêcheurs le tirent; et, après s’être assis sur le rivage, ils mettent dans des vases ce qui est bon, et ils jettent ce qui est mauvais. Il en sera de même à la fin du monde. Les anges viendront séparer les méchants d’avec les justes, et ils les jetteront dans la fournaise ardente, où il y aura des pleurs et des grincements de dents."
-          },
-        {
-              id: 40,
-              reference: "Apocalypse 22:1-2",
-              contenu: "Et il me montra un fleuve d’eau de la vie, limpide comme du cristal, qui sortait du trône de Dieu et de l’agneau. Au milieu de la place de la ville et sur les deux bords du fleuve, il y avait un arbre de vie, produisant douze fois des fruits, rendant son fruit chaque mois, et dont les feuilles servaient à la guérison des nations."
-          },
-        {
-            id: 41,
-              reference: "Apocalypse 13:1-2",
-              contenu: "Puis je vis monter de la mer une bête qui avait dix cornes et sept têtes, et sur ses cornes dix diadèmes, et sur ses têtes des noms de blasphème. La bête que je vis était semblable à un léopard; ses pieds étaient comme ceux d’un ours, et sa gueule comme une gueule de lion. Le dragon lui donna sa puissance, et son trône, et une grande autorité."
-          },
-        {
-            id: 42,
-              reference: "Apocalypse 18:4",
-              contenu: "Et j’entendis du ciel une autre voix qui disait: Sortez du milieu d’elle, mon peuple, afin que vous ne participiez point à ses péchés, et que vous n’ayez point de part à ses fléaux."
-          },
-        
-        {
-            id: 43,
-              reference: "‭‭Habacuc‬ ‭2‬:‭2‬",
-              contenu: "L’Éternel m’adressa la parole, et il dit: Écris la prophétie: Grave-la sur des tables, Afin qu’on la lise couramment."
-          },
-        
-        {
-            id: 44,
-              reference: "Apocalypse‬ ‭2‬:‭17‬",
-              contenu: "Que celui qui a des oreilles entende ce que l’Esprit dit aux Églises: A celui qui vaincra je donnerai de la manne cachée, et je lui donnerai un caillou blanc; et sur ce caillou est écrit un nom nouveau, que personne ne connaît, si ce n’est celui qui le reçoit."
-          },
-        {
-            id: 45,
-              reference: "Matthieu‬ ‭24‬:‭15‬-‭16‬",
-              contenu: "C’est pourquoi, lorsque vous verrez l’abomination de la désolation, dont a parlé le prophète Daniel, établie en lieu saint, que celui qui lit fasse attention! alors, que ceux qui seront en Judée fuient dans les montagnes;"
-          },
-        {
-            id: 46,
-              reference: "‭‭Luc‬ ‭5‬:‭37‬-‭39‬",
-              contenu: "Et personne ne met du vin nouveau dans de vieilles outres; autrement, le vin nouveau fait rompre les outres, il se répand, et les outres sont perdues; mais il faut mettre le vin nouveau dans des outres neuves. Et personne, après avoir bu du vin vieux, ne veut du nouveau, car il dit: Le vieux est bon."
-          },
-        {
-            id: 47,
-              reference: "‭‭Osée‬ ‭2‬:‭21‬-‭22‬",
-              contenu: "Je serai ton fiancé pour toujours; je serai ton fiancé par la justice, la droiture, la grâce et la miséricorde; je serai ton fiancé par la fidélité, et tu reconnaîtras l’Éternel."
-          },
+        const versets = [
+              {
+                  id: 1,
+                  reference: "2 Timothée 4:18",
+                  contenu: "Le Seigneur me délivrera de toute œuvre mauvaise, et il me sauvera pour me faire entrer dans son royaume céleste. A lui soit la gloire aux siècles des siècles! Amen!"
+              },
+              {
+                  id: 2,
+                  reference: "Jacques 1:18",
+                  contenu: "Il nous a engendrés selon sa volonté, par la parole de vérité, afin que nous soyons en quelque sorte les prémices de ses créatures."
+              },
+              {
+                  id: 3,
+                  reference: "Matthieu 24:45-47",
+                  contenu: "Quel est donc le serviteur fidèle et prudent, que son maître a établi sur ses gens, pour leur donner la nourriture au temps convenable? Heureux ce serviteur, que son maître, à son arrivée, trouvera faisant ainsi! Je vous le dis en vérité, il l'établira sur tous ses biens."
+              },
+              {
+                  id: 4,
+                  reference: "Jean 14:29",
+                  contenu: "Et maintenant je vous ai dit ces choses avant qu'elles arrivent, afin que, lorsqu'elles arriveront, vous croyiez."
+              },
+              {
+                  id: 5,
+                  reference: "2 Pierre 1:21",
+                  contenu: "Car ce n'est pas par une volonté d'homme qu'une prophétie a jamais été apportée, mais c'est poussés par le Saint-Esprit que des hommes ont parlé de la part de Dieu."
+              },
+              {
+                  id: 6,
+                  reference: "Exode 19:5-6",
+                  contenu: "Maintenant, si vous écoutez ma voix, et si vous gardez mon alliance, vous m'appartiendrez entre tous les peuples, car toute la terre est à moi; vous serez pour moi un royaume de sacrificateurs et une nation sainte.Voilà les paroles que tu diras aux enfants d'Israël"
+              },
+              {
+                  id: 7,
+                  reference: "Ésaïe 14:12-15",
+                  contenu: "Te voilà tombé du ciel, Astre brillant, fils de l'aurore! Tu es abattu à terre, Toi, le vainqueur des nations! Tu disais en ton cœur: Je monterai au ciel, J'élèverai mon trône au-dessus des étoiles de Dieu; Je m'assiérai sur la montagne de l'assemblée, A l'extrémité du septentrion; Je monterai sur le sommet des nues, Je serai semblable au Très-Haut. Mais tu as été précipité dans le séjour des morts, Dans les profondeurs de la fosse."
+              },
+              {
+                  id: 8,
+                  reference: "1 Jean 4:1",
+                  contenu: "Bien-aimés, n'ajoutez pas foi à tout esprit; mais éprouvez les esprits, pour savoir s'ils sont de Dieu, car plusieurs faux prophètes sont venus dans le monde."
+              },
+              {
+                  id: 9,
+                  reference: "Jean 4:24",
+                  contenu: "Dieu est Esprit, et il faut que ceux qui l'adorent l'adorent en esprit et en vérité."
+              },
+              {
+                  id: 10,
+                  reference: "Jean 1:1",
+                  contenu: "Au commencement était la Parole, et la Parole était avec Dieu, et la Parole était Dieu."
+              },
+              {
+                  id: 11,
+                  reference: "Genèse 1:1",
+                  contenu: "Au commencement, Dieu créa les cieux et la terre."
+              },
+              {
+                  id: 12,
+                  reference: "Matthieu 3:16",
+                  contenu: "Dès que Jésus eut été baptisé, il sortit de l'eau. Et voici, les cieux s'ouvrirent, et il vit l'Esprit de Dieu descendre comme une colombe et venir sur lui."
+              },
+              {
+                  id: 13,
+                  reference: "Ézékiel 47:12",
+                  contenu: "Sur le torrent, sur ses bords de chaque côté, croîtront toutes sortes d'arbres fruitiers. Leur feuillage ne se flétrira point, et leurs fruits n'auront point de fin, ils mûriront tous les mois, parce que les eaux sortiront du sanctuaire. Leurs fruits serviront de nourriture, et leurs feuilles de remède."
+              },
+              {
+                  id: 14,
+                  reference: "Jean 15:5",
+                  contenu: "Je suis le cep, vous êtes les sarments. Celui qui demeure en moi et en qui je demeure porte beaucoup de fruit, car sans moi vous ne pouvez rien faire."
+              },
+              {
+                  id: 15,
+                  reference: "Ésaïe 5:7",
+                  contenu: "La vigne de l'Éternel des armées, c'est la maison d'Israël, Et les hommes de Juda, c'est le plant qu'il chérissait. Il avait espéré de la droiture, et voici du sang versé! De la justice, et voici des cris de détresse!"
+              },
+              {
+                  id: 16,
+                  reference: "Matthieu 13:31-32",
+                  contenu: "Il leur proposa une autre parabole, et il dit: Le royaume des cieux est semblable à un grain de sénevé qu'un homme a pris et semé dans son champ. C'est la plus petite de toutes les semences; mais, quand il a poussé, il est plus grand que les légumes et devient un arbre, de sorte que les oiseaux du ciel viennent habiter dans ses branches."
+              },
+              {
+                  id: 17,
+                  reference: "Jean 1:12-13",
+                  contenu: "Mais à tous ceux qui l'ont reçue, à ceux qui croient en son nom, elle a donné le pouvoir de devenir enfants de Dieu, lesquels sont nés, non du sang, ni de la volonté de la chair, ni de la volonté de l'homme, mais de Dieu."
+              },
+              {
+                  id: 18,
+                  reference: "Matthieu 13:10-11",
+                  contenu: "Les disciples s'approchèrent, et lui dirent: Pourquoi leur parles-tu en paraboles? Jésus leur répondit: Parce qu'il vous a été donné de connaître les mystères du royaume des cieux, et que cela ne leur a pas été donné."
+              },
+              {
+                  id: 19,
+                  reference: "Luc 22:20",
+                  contenu: "Il prit de même la coupe, après le souper, et la leur donna, en disant: Cette coupe est la nouvelle alliance en mon sang, qui est répandu pour vous."
+              },
+              {
+                  id: 20,
+                  reference: "Apocalypse 21:6",
+                  contenu: "Et il me dit: C'est fait! Je suis l'alpha et l'oméga, le commencement et la fin. A celui qui a soif je donnerai de la source de l'eau de la vie, gratuitement."
+              },
+              {
+                  id: 21,
+                  reference: "2 Timothée 3:16-17",
+                  contenu: "Toute Écriture est inspirée de Dieu, et utile pour enseigner, pour convaincre, pour corriger, pour instruire dans la justice, afin que l'homme de Dieu soit accompli et propre à toute bonne œuvre."
+              },
+              {
+                  id: 22,
+                  reference: "1 Corinthiens 10:11",
+                  contenu: "Ces choses leur sont arrivées pour servir d'exemples, et elles ont été écrites pour notre instruction, à nous qui sommes parvenus à la fin des siècles."
+              },
+              {
+                  id: 23,
+                  reference: "2 Timothée 2:20-21",
+                  contenu: "Dans une grande maison, il n'y a pas seulement des vases d'or et d'argent, mais il y en a aussi de bois et de terre; les uns sont des vases d'honneur, et les autres sont d'un usage vil. Si donc quelqu'un se conserve pur, en s'abstenant de ces choses, il sera un vase d'honneur, sanctifié, utile à son maître, propre à toute bonne œuvre."
+              },
+              {
+                  id: 24,
+                  reference: "Acte 9:15",
+                  contenu: "Mais le Seigneur lui dit: Va, car cet homme est un instrument que j'ai choisi, pour porter mon nom devant les nations, devant les rois, et devant les fils d'Israël."
+              },
+              {
+                  id: 25,
+                  reference: "Proverbes 24:12",
+                  contenu: "Si tu dis: Ah! Nous ne savions pas!… Celui qui pèse les cœurs ne le voit-il pas? Celui qui veille sur ton âme ne le connaît-il pas? Et ne rendra-t-il pas à chacun selon ses œuvres?"
+              },
+              {
+                  id: 26,
+                  reference: "Actes 13:26-27",
+                  contenu: "Hommes frères, fils de la race d'Abraham, et vous qui craignez Dieu, c'est à vous que cette parole de salut a été envoyée. Car les habitants de Jérusalem et leurs chefs ont méconnu Jésus, et, en le condamnant, ils ont accompli les paroles des prophètes qui se lisent chaque sabbat."
+              },
+              {
+                  id: 27,
+                  reference: "Matthieu 13:33",
+                  contenu: "Il leur dit cette autre parabole: Le royaume des cieux est semblable à du levain qu'une femme a pris et mis dans trois mesures de farine, jusqu'à ce que la pâte soit toute levée."
+              },
+              {
+                  id: 28,
+                  reference: "Jacques 1:12",
+                  contenu: "Heureux l'homme qui supporte patiemment la tentation; car, après avoir été éprouvé, il recevra la couronne de vie, que le Seigneur a promise à ceux qui l'aiment."
+              },
+              {
+                  id: 29,
+                  reference: "Apocalypse 2:26-27",
+                  contenu: "À celui qui vaincra, et qui gardera jusqu'à la fin mes œuvres, je donnerai autorité sur les nations. Il les paîtra avec une verge de fer, comme on brise les vases d'argile, ainsi que moi-même j'en ai reçu le pouvoir de mon Père."
+              },
+              {
+                  id: 30,
+                  reference: "Jérémie 23:29",
+                  contenu: "Ma parole n'est-elle pas comme un feu, dit l'Éternel, Et comme un marteau qui brise le roc?"
+              },
+              {
+                  id: 31,
+                  reference: "Luc 12:49",
+                  contenu: "Je suis venu jeter un feu sur la terre, et qu'ai-je à désirer, s'il est déjà allumé?"
+              },
+              {
+                  id: 32,
+                  reference: "Jean 9:5",
+                  contenu: "Pendant que je suis dans le monde, je suis la lumière du monde."
+              },
+              {
+                  id: 33,
+                  reference: "Jean 1:1-5",
+                  contenu: "Au commencement était la Parole, et la Parole était avec Dieu, et la Parole était Dieu. Elle était au commencement avec Dieu. Toutes choses ont été faites par elle, et rien de ce qui a été fait n'a été fait sans elle. En elle était la vie, et la vie était la lumière des hommes. La lumière luit dans les ténèbres, et les ténèbres ne l'ont point reçue."
+              },
+              {
+                  id: 34,
+                  reference: "Apocalypse 1:1",
+                  contenu: "Révélation de Jésus-Christ, que Dieu lui a donnée pour montrer à ses serviteurs les choses qui doivent arriver bientôt, et qu'il a fait connaître, par l'envoi de son ange, à son serviteur Jean"
+              },
+              {
+                  id: 35,
+                  reference: "Apocalypse 1:20",
+                  contenu: "Le mystère des sept étoiles que tu as vues dans ma main droite, et des sept chandeliers d'or. Les sept étoiles sont les anges des sept Églises, et les sept chandeliers sont les sept Églises."
+              },
+              {
+                  id: 36,
+                  reference: "Apocalypse 3:17-18",
+                  contenu: "Parce que tu dis: Je suis riche, je me suis enrichi, et je n'ai besoin de rien, et parce que tu ne sais pas que tu es malheureux, misérable, pauvre, aveugle et nu, je te conseille d'acheter de moi de l'or éprouvé par le feu, afin que tu deviennes riche, et des vêtements blancs, afin que tu sois vêtu et que la honte de ta nudité ne paraisse pas, et un collyre pour oindre tes yeux, afin que tu voies."
+              },
+              {
+                  id: 37,
+                  reference: "Apocalypse 3:22",
+                  contenu: "Que celui qui a des oreilles entende ce que l'Esprit dit aux Églises!"
+              },
+              {
+                  id: 38,
+                  reference: "Jean 3:5",
+                  contenu: "Jésus répondit: En vérité, en vérité, je te le dis, si un homme ne naît d'eau et d'Esprit, il ne peut entrer dans le royaume de Dieu."
+              },
+            {
+                  id: 39,
+                  reference: "Matthieu 13:47-50",
+                  contenu: "Le royaume des cieux est encore semblable à un filet jeté dans la mer et ramassant des poissons de toute espèce. Quand il est rempli, les pêcheurs le tirent; et, après s’être assis sur le rivage, ils mettent dans des vases ce qui est bon, et ils jettent ce qui est mauvais. Il en sera de même à la fin du monde. Les anges viendront séparer les méchants d’avec les justes, et ils les jetteront dans la fournaise ardente, où il y aura des pleurs et des grincements de dents."
+              },
+            {
+                  id: 40,
+                  reference: "Apocalypse 22:1-2",
+                  contenu: "Et il me montra un fleuve d’eau de la vie, limpide comme du cristal, qui sortait du trône de Dieu et de l’agneau. Au milieu de la place de la ville et sur les deux bords du fleuve, il y avait un arbre de vie, produisant douze fois des fruits, rendant son fruit chaque mois, et dont les feuilles servaient à la guérison des nations."
+              },
+            {
+                id: 41,
+                  reference: "Apocalypse 13:1-2",
+                  contenu: "Puis je vis monter de la mer une bête qui avait dix cornes et sept têtes, et sur ses cornes dix diadèmes, et sur ses têtes des noms de blasphème. La bête que je vis était semblable à un léopard; ses pieds étaient comme ceux d’un ours, et sa gueule comme une gueule de lion. Le dragon lui donna sa puissance, et son trône, et une grande autorité."
+              },
+            {
+                id: 42,
+                  reference: "Apocalypse 18:4",
+                  contenu: "Et j’entendis du ciel une autre voix qui disait: Sortez du milieu d’elle, mon peuple, afin que vous ne participiez point à ses péchés, et que vous n’ayez point de part à ses fléaux."
+              },
 
-      ];
+            {
+                id: 43,
+                  reference: "Habacuc‬ 2‬:2‬",
+                  contenu: "L’Éternel m’adressa la parole, et il dit: Écris la prophétie: Grave-la sur des tables, Afin qu’on la lise couramment."
+              },
+
+            {
+                id: 44,
+                  reference: "Apocalypse‬ 2‬:17‬",
+                  contenu: "Que celui qui a des oreilles entende ce que l’Esprit dit aux Églises: A celui qui vaincra je donnerai de la manne cachée, et je lui donnerai un caillou blanc; et sur ce caillou est écrit un nom nouveau, que personne ne connaît, si ce n’est celui qui le reçoit."
+              },
+            {
+                id: 45,
+                  reference: "Matthieu‬ 24‬:15‬-16‬",
+                  contenu: "C’est pourquoi, lorsque vous verrez l’abomination de la désolation, dont a parlé le prophète Daniel, établie en lieu saint, que celui qui lit fasse attention! alors, que ceux qui seront en Judée fuient dans les montagnes;"
+              },
+            {
+                id: 46,
+                  reference: "Luc‬ 5‬:37‬-39‬",
+                  contenu: "Et personne ne met du vin nouveau dans de vieilles outres; autrement, le vin nouveau fait rompre les outres, il se répand, et les outres sont perdues; mais il faut mettre le vin nouveau dans des outres neuves. Et personne, après avoir bu du vin vieux, ne veut du nouveau, car il dit: Le vieux est bon."
+              
+            {
+                id: 47,
+                  reference: "Osée‬ 2‬:21‬-22‬",
+                  contenu: "Je serai ton fiancé pour toujours; je serai ton fiancé par la justice, la droiture, la grâce et la miséricorde; je serai ton fiancé par la fidélité, et tu reconnaîtras l’Éternel."
+              },
+
+          ];
         // État de l'application
         let versetsNonUtilises = [...versets];
         let versetActuel = null;
@@ -499,11 +549,11 @@
             if (versetsNonUtilises.length === 0) {
                 versetsNonUtilises = [...versets];
             }
-            
+
             const randomIndex = Math.floor(Math.random() * versetsNonUtilises.length);
             const verse = versetsNonUtilises[randomIndex];
             versetsNonUtilises.splice(randomIndex, 1);
-            
+
             return verse;
         }
 
@@ -564,7 +614,7 @@
         toggleListBtn.addEventListener('click', () => {
             versesList.classList.toggle('visible');
             toggleListBtn.textContent = versesList.classList.contains('visible') ? '📝 Cacher la Liste' : '📝 Voir la Liste';
-            
+
             if (versesList.classList.contains('visible')) {
                 versesList.innerHTML = versets.map(verse => `
                     <div class="verse-list-item">
@@ -589,6 +639,89 @@
 
         // Initialisation des statistiques
         updateStats();
+        const playAudioBtn = document.getElementById('play-audio');
+        const stopAudioBtn = document.getElementById('stop-audio');
+        const voiceSelect = document.getElementById('voice-select');
+        const speedRange = document.getElementById('speed-range');
+        const speedValue = document.getElementById('speed-value');
+        const loopCheckbox = document.getElementById('loop-checkbox');
+
+        // Variables pour la gestion de l'audio
+        let speechSynthesis = window.speechSynthesis;
+        let isPlaying = false;
+        let currentUtterance = null;
+
+        // Initialisation des voix disponibles
+        function initializeVoices() {
+            const voices = speechSynthesis.getVoices();
+            voiceSelect.innerHTML = voices
+                .filter(voice => voice.lang.startsWith('fr'))
+                .map(voice => `<option value="${voice.name}">${voice.name}</option>`)
+                .join('');
+        }
+
+        // Attendre que les voix soient chargées
+        speechSynthesis.onvoiceschanged = initializeVoices;
+        initializeVoices();
+
+        // Fonction pour lire le verset en audio
+        function playVerse() {
+            if (!versetActuel) return;
+
+            // Arrêter la lecture en cours
+            stopAudio();
+
+            const text = `${versetActuel.reference}. ${versetActuel.contenu}`;
+            currentUtterance = new SpeechSynthesisUtterance(text);
+
+            // Configurer les paramètres de lecture
+            const selectedVoice = speechSynthesis.getVoices().find(voice => voice.name === voiceSelect.value);
+            if (selectedVoice) currentUtterance.voice = selectedVoice;
+
+            currentUtterance.rate = parseFloat(speedRange.value);
+            currentUtterance.lang = 'fr-FR';
+
+            // Gérer la lecture en boucle
+            if (loopCheckbox.checked) {
+                currentUtterance.onend = () => {
+                    if (loopCheckbox.checked) playVerse();
+                };
+            }
+
+            speechSynthesis.speak(currentUtterance);
+            isPlaying = true;
+            playAudioBtn.textContent = '⏸️ Pause';
+        }
+
+        // Fonction pour arrêter la lecture
+        function stopAudio() {
+            speechSynthesis.cancel();
+            isPlaying = false;
+            playAudioBtn.textContent = '🔊 Lire';
+        }
+
+        // Gestionnaires d'événements pour l'audio
+        playAudioBtn.addEventListener('click', () => {
+            if (isPlaying) {
+                stopAudio();
+            } else {
+                playVerse();
+            }
+        });
+
+        stopAudioBtn.addEventListener('click', stopAudio);
+
+        speedRange.addEventListener('input', (e) => {
+            const speed = parseFloat(e.target.value);
+            speedValue.textContent = `${speed.toFixed(1)}x`;
+            if (isPlaying) {
+                // Redémarrer la lecture avec la nouvelle vitesse
+                playVerse();
+            }
+        });
+
+        // Arrêter l'audio quand on change de verset
+        newVerseBtn.addEventListener('click', stopAudio);
     </script>
 </body>
 </html>
