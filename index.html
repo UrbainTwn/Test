@@ -262,22 +262,23 @@
     <div class="audio-controls">
             <div class="button-group">
                 <button id="play-audio" class="btn btn-primary">🔊 Lire</button>
-                <button id="stop-audio" class="btn btn-secondary">⏹️ Arrêter</button>
-            </div>
-            <div class="audio-settings">
-                <div class="audio-setting">
-                    <label for="voice-select">Voix:</label>
-                    <select id="voice-select"></select>
+                <button id="stop-audio" class="btn btn-secondary">⏹️ Arrêter</button><div class="audio-setting">
+                    <label for="loop-checkbox">Répéter:</label>
+                    <input type="checkbox" id="loop-checkbox">
+                </div>
                 </div>
                 <div class="audio-setting">
                     <label for="speed-range">Vitesse:</label>
                     <input type="range" id="speed-range" min="0.5" max="2" step="0.1" value="1">
                     <span id="speed-value">1.0x</span>
                 </div>
+            </div>
+            <div class="audio-settings">
                 <div class="audio-setting">
-                    <label for="loop-checkbox">Répéter:</label>
-                    <input type="checkbox" id="loop-checkbox">
-                </div>
+                    <label for="voice-select">Voix:</label>
+                    <select id="voice-select"></select>
+                
+                
             </div>
         </div>
     </div>
@@ -515,7 +516,7 @@
                 id: 46,
                   reference: "Luc‬ 5‬:37‬-39‬",
                   contenu: "Et personne ne met du vin nouveau dans de vieilles outres; autrement, le vin nouveau fait rompre les outres, il se répand, et les outres sont perdues; mais il faut mettre le vin nouveau dans des outres neuves. Et personne, après avoir bu du vin vieux, ne veut du nouveau, car il dit: Le vieux est bon."
-            },   
+            },
             {
                 id: 47,
                   reference: "Osée‬ 2‬:21‬-22‬",
