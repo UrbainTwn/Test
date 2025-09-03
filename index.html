@@ -13,9 +13,9 @@
   --transition-slow: 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-html {
+html, body {
   height: 100%;
-  width: 100%;
+  margin: 0;
 }
 
 body {
@@ -25,7 +25,6 @@ body {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  margin: 0;
   background: radial-gradient(circle at center, var(--secondary-color), #cfd8ff);
   overflow-x: hidden;
 }
@@ -69,14 +68,12 @@ h1 {
   align-items: center;
   border: 2px solid #333;
   border-radius: 12px;
-  background: #fff;
-  font-size: 18px;
+  font-size: 22px;
   font-weight: bold;
-  padding: 0;
-  box-sizing: border-box;
   text-align: center;
-  transition: all var(--transition-fast);
-  overflow: hidden;
+  padding: 20px;
+  box-sizing: border-box;
+  color: white;
 }
 
 .card .back {
@@ -100,13 +97,11 @@ h1 {
   transform: rotateY(180deg);
 }
 
-.card.fullscreen .front {
-  transform: rotateY(0deg) !important;
-}
-
-.card.fullscreen .back {
-  transform: rotateY(180deg) !important;
-}
+/* couleurs des cartes */
+.card.red    .front { background: #c62828; }
+.card.yellow .front { background: #fbc02d; color: #333; }
+.card.green  .front { background: #2e7d32; }
+.card.blue   .front { background: #1565c0; }
 
 /* carte affichée plein écran */
 .card.fullscreen {
@@ -121,7 +116,6 @@ h1 {
   filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.3));
 }
 
-/* bouton de fermeture sur la carte en plein écran */
 .close-btn {
   position: absolute;
   top: 15px;
@@ -138,41 +132,14 @@ h1 {
   align-items: center;
   justify-content: center;
   z-index: 1001;
-  transition: all var(--transition-fast);
-  backdrop-filter: blur(10px);
-}
-
-.close-btn:hover {
-  background: rgba(0, 0, 0, 0.9);
-  transform: scale(1.1);
 }
 
 @keyframes popIn {
-  0% { 
-    transform: translate(-50%, -50%) rotateY(0deg) scale(0.3);
-    opacity: 0;
-  }
-  50% { 
-    transform: translate(-50%, -50%) rotateY(0deg) scale(1.05);
-    opacity: 1;
-  }
-  100% { 
-    transform: translate(-50%, -50%) rotateY(0deg) scale(1);
-    opacity: 1;
-  }
+  0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+  50% { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
 }
 
-@keyframes cardHover {
-  0%, 100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-8px) scale(1.02); }
-}
-
-.card:hover:not(.fullscreen) {
-  animation: cardHover 0.6s ease-in-out;
-  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.25));
-}
-
-/* animation de rotation circulaire */
 .rotating {
   animation: spinSmooth 1.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -194,34 +161,10 @@ button {
   cursor: pointer;
   transition: all var(--transition-fast);
   font-weight: 600;
-  box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
   font-family: inherit;
 }
-
-button:hover:not(:disabled) {
-  background: #0047b3;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 102, 255, 0.4);
-}
-
-button:disabled {
-  background: #aaa;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-button.secondary {
-  background: #e0e0e0;
-  color: #000;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-button.secondary:hover:not(:disabled) {
-  background: #d0d0d0;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-}
+button:disabled { background: #aaa; }
+button.secondary { background: #e0e0e0; color: #000; }
   </style>
 </head>
 <body>
@@ -242,23 +185,22 @@ const cards = [];
 let chosen = null;
 let isAnimating = false;
 
-// images pour les cartes (intégrées en base64)
-const images = [
-  "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQwIiBoZWlnaHQ9IjMyMCIgdmlld0JveD0iMCAwIDI0MCAzMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyNDAiIGhlaWdodD0iMzIwIiByeD0iMTIiIGZpbGw9IiNGRkY1RjUiLz4KPHN2ZyB4PSI2MCIgeT0iODAiIHdpZHRoPSIxMjAiIGhlaWdodD0iMTYwIiBmaWxsPSJub25lIj4KPHN2ZyB4PSIwIiB5PSIwIiB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgZmlsbD0ibm9uZSI+CjxjaXJjbGUgY3g9IjYwIiBjeT0iNjAiIHI9IjUwIiBmaWxsPSIjRkY2B0IzIi8+CjxjaXJjbGUgY3g9IjYwIiBjeT0iNjAiIHI9IjMwIiBmaWxsPSIjRkZEQkQ0Ii8+CjwvdWc+CjwvZz4KPHN2ZyB4PSIzMCIgeT0iMjQwIiB3aWR0aD0iMTgwIiBoZWlnaHQ9IjQwIiBmaWxsPSJub25lIj4KPHN2ZyB4PSIwIiB5PSIwIiB3aWR0aD0iMTgwIiBoZWlnaHQ9IjQwIiBmaWxsPSJub25lIj4KPHN2ZyB4PSI0MCIgeT0iMTAiIHdpZHRoPSIxMDAiIGhlaWdodD0iMjAiIGZpbGw9Im5vbmUiPgo8dGV4dCB4PSI1MCIgeT0iMTUiIGZpbGw9IiNGRjY3QjMiIGZvbnQtc2l6ZT0iMTQiIGZvbnQtZmFtaWx5PSJBcmlhbCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Q2FydGUgMTwvdGV4dD4KPC9zdmc+CjwvZz4KPC9zdmc+Cjwvc3ZnPgo8L3N2Zz4=",
-  "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQwIiBoZWlnaHQ9IjMyMCIgdmlld0JveD0iMCAwIDI0MCAzMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyNDAiIGhlaWdodD0iMzIwIiByeD0iMTIiIGZpbGw9IiNGNUZGRjUiLz4KPHN2ZyB4PSI2MCIgeT0iODAiIHdpZHRoPSIxMjAiIGhlaWdodD0iMTYwIiBmaWxsPSJub25lIj4KPHN2ZyB4PSIwIiB5PSIwIiB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgZmlsbD0ibm9uZSI+CjxyZWN0IHg9IjMwIiB5PSIzMCIgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjNDdCMDQ3IiByeD0iOCIvPgo8cmVjdCB4PSI0MCIgeT0iNDAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgZmlsbD0iIzY4RDM2OCIgcng9IjQiLz4KPC9zdmc+CjwvZz4KPHN2ZyB4PSIzMCIgeT0iMjQwIiB3aWR0aD0iMTgwIiBoZWlnaHQ9IjQwIiBmaWxsPSJub25lIj4KPHN2ZyB4PSIwIiB5PSIwIiB3aWR0aD0iMTgwIiBoZWlnaHQ9IjQwIiBmaWxsPSJub25lIj4KPHN2ZyB4PSI0MCIgeT0iMTAiIHdpZHRoPSIxMDAiIGhlaWdodD0iMjAiIGZpbGw9Im5vbmUiPgo8dGV4dCB4PSI1MCIgeT0iMTUiIGZpbGw9IiM0N0IwNDciIGZvbnQtc2l6ZT0iMTQiIGZvbnQtZmFtaWx5PSJBcmlhbCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Q2FydGUgMjwvdGV4dD4KPC9zdmc+CjwvZz4KPC9zdmc+Cjwvc3ZnPgo8L3N2Zz4=",
-  "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQwIiBoZWlnaHQ9IjMyMCIgdmlld0JveD0iMCAwIDI0MCAzMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyNDAiIGhlaWdodD0iMzIwIiByeD0iMTIiIGZpbGw9IiNGNUY1RkYiLz4KPHN2ZyB4PSI2MCIgeT0iODAiIHdpZHRoPSIxMjAiIGhlaWdodD0iMTYwIiBmaWxsPSJub25lIj4KPHN2ZyB4PSIwIiB5PSIwIiB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgZmlsbD0ibm9uZSI+Cjxwb2x5Z29uIHBvaW50cz0iNjAsNTQgNzIsNjYgNjAsNzggNDgsNjYiIGZpbGw9IiMzQzQzQ0EiLz4KPHN2ZyB4PSIzNSIgeT0iMzUiIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCIgZmlsbD0ibm9uZSI+CjxjaXJjbGUgY3g9IjI1IiBjeT0iMjUiIHI9IjIwIiBmaWxsPSIjNzA5OUZGIi8+CjwvZz4KPC9zdmc+CjwvZz4KPHN2ZyB4PSIzMCIgeT0iMjQwIiB3aWR0aD0iMTgwIiBoZWlnaHQ9IjQwIiBmaWxsPSJub25lIj4KPHN2ZyB4PSIwIiB5PSIwIiB3aWR0aD0iMTgwIiBoZWlnaHQ9IjQwIiBmaWxsPSJub25lIj4KPHN2ZyB4PSI0MCIgeT0iMTAiIHdpZHRoPSIxMDAiIGhlaWdodD0iMjAiIGZpbGw9Im5vbmUiPgo8dGV4dCB4PSI1MCIgeT0iMTUiIGZpbGw9IiMzQzQzQ0EiIGZvbnQtc2l6ZT0iMTQiIGZvbnQtZmFtaWx5PSJBcmlhbCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Q2FydGUgMzwvdGV4dD4KPC9zdmc+CjwvZz4KPC9zdmc+Cjwvc3ZnPgo8L3N2Zz4=",
-  "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQwIiBoZWlnaHQ9IjMyMCIgdmlld0JveD0iMCAwIDI0MCAzMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyNDAiIGhlaWdodD0iMzIwIiByeD0iMTIiIGZpbGw9IiNGRkZBRjUiLz4KPHN2ZyB4PSI2MCIgeT0iODAiIHdpZHRoPSIxMjAiIGhlaWdodD0iMTYwIiBmaWxsPSJub25lIj4KPHN2ZyB4PSIwIiB5PSIwIiB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgZmlsbD0ibm9uZSI+Cjxzdmcgdmlld0JveD0iMCAwIDEyMCAxMjAiPgo8cG9seWdvbiBwb2ludHM9IjYwLDIwIDc4LDQ0IDEwMCw0NCA3NCw2NiA4Miw5MCA2MCw3OCAzOCw5MCA0Niw2NiAyMCw0NCA0Miw0NCIgZmlsbD0iI0ZGREIzMyIvPgo8cG9seWdvbiBwb2ludHM9IjYwLDMwIDcwLDQ4IDgyLDQ4IDcyLDU4IDc2LDcwIDYwLDYyIDQ0LDcwIDQ4LDU4IDM4LDQ4IDUwLDQ4IiBmaWxsPSIjRkZGRkZGIi8+CjwvZz4KPC9zdmc+CjwvZz4KPHN2ZyB4PSIzMCIgeT0iMjQwIiB3aWR0aD0iMTgwIiBoZWlnaHQ9IjQwIiBmaWxsPSJub25lIj4KPHN2ZyB4PSIwIiB5PSIwIiB3aWR0aD0iMTgwIiBoZWlnaHQ9IjQwIiBmaWxsPSJub25lIj4KPHN2ZyB4PSI0MCIgeT0iMTAiIHdpZHRoPSIxMDAiIGhlaWdodD0iMjAiIGZpbGw9Im5vbmUiPgo8dGV4dCB4PSI1MCIgeT0iMTUiIGZpbGw9IiNGRkRCMzMiIGZvbnQtc2l6ZT0iMTQiIGZvbnQtZmFtaWx5PSJBcmlhbCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Q2FydGUgNDwvdGV4dD4KPC9zdmc+CjwvZz4KPC9zdmc+Cjwvc3ZnPgo8L3N2Zz4="
+// textes et couleurs des cartes
+const cardData = [
+  { text: "La volonté de Dieu", color: "red" },
+  { text: "La Genèse", color: "yellow" },
+  { text: "Le vide en moi", color: "green" },
+  { text: "La fin du monde", color: "blue" }
 ];
 
-// placement des cartes en cercle avec animation d'entrée
+// placement des cartes en cercle
 for (let i=0; i<NB; i++){
   const card = document.createElement("div");
-  card.className = "card";
+  card.className = "card " + cardData[i].color;
 
   const front = document.createElement("div");
   front.className = "face front";
-  front.innerHTML = `<img src="${images[i]}" 
-    style="width:100%;height:100%;object-fit:cover;border-radius:10px;" />`;
+  front.innerHTML = `<strong>${cardData[i].text}</strong>`;
 
   const back = document.createElement("div");
   back.className = "face back";
@@ -272,23 +214,12 @@ for (let i=0; i<NB; i++){
   const y = Math.sin(angle) * radius;
   card.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
 
-  // Animation d'entrée avec délai
-  card.style.opacity = '0';
-  card.style.transform += ' scale(0.5)';
-  
-  setTimeout(() => {
-    card.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
-    card.style.opacity = '1';
-    card.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px) scale(1)`;
-  }, i * 150);
-
   arena.appendChild(card);
   cards.push(card);
 }
 
 function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
 
-// Fonction utilitaire pour créer des animations fluides
 function animateElement(element, keyframes, options = {}) {
   return element.animate(keyframes, {
     duration: 600,
@@ -299,98 +230,40 @@ function animateElement(element, keyframes, options = {}) {
 }
 
 async function drawRandomCard(){
-  if(chosen || isAnimating) return; // déjà tiré ou en cours d'animation
-  
+  if(chosen || isAnimating) return;
   isAnimating = true;
   drawBtn.disabled = true;
-  resetBtn.disabled = true;
 
-  // Animation de préparation - les cartes bougent légèrement
-  cards.forEach((card, i) => {
-    setTimeout(() => {
-      animateElement(card, [
-        { transform: card.style.transform },
-        { transform: card.style.transform + ' scale(1.05)' },
-        { transform: card.style.transform }
-      ], { duration: 300 });
-    }, i * 50);
-  });
-
-  await sleep(500);
-
-  // fait tourner le cercle avec animation améliorée
   arena.classList.add("rotating");
   await sleep(1500);
   arena.classList.remove("rotating");
 
-  // choisis une carte avec effet de suspense
   const idx = Math.floor(Math.random() * NB);
   chosen = cards[idx];
 
-  // Effet de sélection avant l'affichage plein écran
-  await animateElement(chosen, [
-    { transform: chosen.style.transform },
-    { transform: chosen.style.transform + ' scale(1.2) rotateZ(5deg)' },
-    { transform: chosen.style.transform + ' scale(1.1)' }
-  ], { duration: 400 }).finished;
-
-  await sleep(200);
-
-  // affiche en plein écran avec animation personnalisée
   chosen.classList.add("fullscreen");
   chosen.style.animation = 'popIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards';
-  
-  // ajouter un bouton de fermeture sur la carte avec animation
+
   const closeBtn = document.createElement("button");
   closeBtn.className = "close-btn";
   closeBtn.innerHTML = "✕";
   closeBtn.onclick = resetAll;
-  closeBtn.style.opacity = '0';
-  closeBtn.style.transform = 'scale(0.5)';
   chosen.appendChild(closeBtn);
-  
-  // Animation du bouton de fermeture
-  setTimeout(() => {
-    animateElement(closeBtn, [
-      { opacity: 0, transform: 'scale(0.5)' },
-      { opacity: 1, transform: 'scale(1.1)' },
-      { opacity: 1, transform: 'scale(1)' }
-    ], { duration: 400 });
-  }, 300);
-  
-  isAnimating = false;
-  drawBtn.disabled = true;
+
   resetBtn.disabled = false;
+  isAnimating = false;
 }
 
 async function resetAll(){
-  if(!chosen || isAnimating) return;
-  
-  isAnimating = true;
-  
-  // Animation de sortie du bouton de fermeture
+  if(!chosen) return;
+
   const closeBtn = chosen.querySelector(".close-btn");
-  if(closeBtn) {
-    await animateElement(closeBtn, [
-      { opacity: 1, transform: 'scale(1)' },
-      { opacity: 0, transform: 'scale(0.5)' }
-    ], { duration: 200 }).finished;
-    closeBtn.remove();
-  }
-  
-  // Animation de retour de la carte
-  await animateElement(chosen, [
-    { transform: 'translate(-50%, -50%) rotateY(0deg) scale(1)' },
-    { transform: 'translate(-50%, -50%) rotateY(0deg) scale(0.8)' },
-    { transform: chosen.style.transform.replace(' scale(1.1)', '') + ' scale(0.9)' },
-    { transform: chosen.style.transform.replace(' scale(1.1)', '') }
-  ], { duration: 600 }).finished;
-  
+  if(closeBtn) closeBtn.remove();
+
   chosen.classList.remove("fullscreen");
   chosen.style.animation = '';
   chosen = null;
-  
-  isAnimating = false;
+
   drawBtn.disabled = false;
   resetBtn.disabled = true;
 }
