@@ -2,242 +2,135 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <title>Tirage d'une carte circulaire</title>
+  <title>Carrousel biblique</title>
   <style>
-:root {
-  --primary-color: #0066ff;
-  --secondary-color: #f0f4ff;
-  --accent-color: #d32f2f;
-  --transition-fast: 0.3s ease;
-  --transition-medium: 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-html, body {
-  height: 100%;
-  margin: 0;
-}
-
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Georgia', serif;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: radial-gradient(circle at center, var(--secondary-color), #cfd8ff);
-  overflow-x: hidden;
+  margin: 0;
+  background: radial-gradient(circle at center, #fff8e1, #fbc02d);
 }
 
 h1 { 
-  margin-bottom: 20px;
-  color: #333;
-  font-weight: 600;
-  font-size: 2.2em;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+  color: #5d4037;
+  font-weight: 700;
+  font-size: 2.4em;
+  text-shadow: 0 2px 8px rgba(255, 213, 79, 0.6);
+  letter-spacing: 2px;
 }
 
-.arena {
+.carousel {
   position: relative;
-  width: 700px;
-  height: 700px;
-  margin: 20px 0;
+  width: 420px;
+  height: 580px;
   perspective: 1200px;
+  overflow: hidden;
 }
 
 .card {
   position: absolute;
-  width: 240px;
-  height: 320px;
-  left: 50%;
-  top: 50%;
-  transform-style: preserve-3d;
-  transform: translate(-50%, -50%);
-  transition: all var(--transition-medium);
-  cursor: pointer;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
-}
-
-.card .face {
-  position: absolute;
   width: 100%;
   height: 100%;
-  backface-visibility: hidden;
-  border: 2px solid #333;
-  border-radius: 12px;
+  top: 0; 
+  left: 100%; /* cartes hors écran à droite par défaut */
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 34px;
   font-weight: bold;
-  padding: 20px;
-  box-sizing: border-box;
-}
-
-.card .back {
-  background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
-  color: #000;
-  font-size: 80px;
-  font-weight: bold;
-  border: 3px solid #333;
-}
-
-.card .back::before {
-  content: "?";
-  color: var(--accent-color);
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.card .front {
-  transform: rotateY(180deg);
-  font-size: 28px;
-  text-align: center;
-  color: white;
-}
-
-/* couleurs */
-.card.red    .front { background: #c62828; }
-.card.yellow .front { background: #fbc02d; color:white; }
-.card.green  .front { background: #2e7d32; color:white; }
-.card.blue   .front { background: #1565c0; color:white; }
-
-/* plein écran */
-.card.fullscreen {
-  position: fixed !important;
-  top: 50%;
-  left: 50%;
-  width: min(600px, 90vw) !important;
-  height: min(840px, 90vh) !important;
-  transform: translate(-50%, -50%) rotateY(0deg) scale(1) !important;
-  z-index: 1000;
-  transition: all var(--transition-slow);
-  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.3));
-}
-
-.card.fullscreen .front {
-  transform: rotateY(0deg) !important;
-  font-size: 48px;
-  padding: 40px;
-}
-.card.fullscreen .back {
-  transform: rotateY(180deg) !important;
-}
-
-@keyframes popIn {
-  0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
-  50% { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
-  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-}
-
-.rotating {
-  animation: spinSmooth 1.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-@keyframes spinSmooth {
-  0% { transform: rotate(0deg); filter: blur(0px); }
-  50% { transform: rotate(180deg); filter: blur(2px); }
-  100% { transform: rotate(360deg); filter: blur(0px); }
-}
-
-button {
-  padding: 20px 40px;
-  margin: 15px;
-  font-size: 18px;
-  border: none;
-  border-radius: 12px;
-  background: var(--primary-color);
   color: #fff;
-  cursor: pointer;
-  font-weight: 600;
-  font-family: inherit;
+  border-radius: 20px;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.25);
+  transform: scale(0.85) rotateY(15deg);
+  opacity: 0;
+  transition: all 0.7s ease;
+  padding: 20px;
+  text-align: center;
+  text-shadow: 0 0 10px rgba(255,255,255,0.9);
 }
-button:disabled { background: #aaa; }
+
+/* carte visible au centre */
+.card.active {
+  left: 0;
+  opacity: 1;
+  transform: scale(1) rotateY(0deg);
+}
+
+/* couleurs dorées */
+.card:nth-child(1) { background: linear-gradient(135deg, #ffca28, #f9a825); }
+.card:nth-child(2) { background: linear-gradient(135deg, #ffd54f, #fbc02d); }
+.card:nth-child(3) { background: linear-gradient(135deg, #ffe082, #ffca28); }
+.card:nth-child(4) { background: linear-gradient(135deg, #fff176, #fdd835); }
+
+/* flèches */
+.arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: linear-gradient(135deg, #fdd835, #fbc02d);
+  color: #5d4037;
+  border: none;
+  font-size: 32px;
+  padding: 12px 20px;
+  cursor: pointer;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  transition: all 0.3s ease;
+}
+
+.arrow:hover {
+  transform: translateY(-50%) scale(1.15);
+  background: linear-gradient(135deg, #fff59d, #fbc02d);
+}
+
+.arrow.left { left: -70px; }
+.arrow.right { right: -70px; }
   </style>
 </head>
 <body>
-  <h1>Tirage circulaire</h1>
-  <div class="arena" id="arena"></div>
-  <div>
-    <button id="drawBtn">🎲 Tirer une carte</button>
+  <h1>Carrousel Biblique</h1>
+  
+  <div class="carousel" id="carousel">
+    <div class="card active">La volonté de Dieu</div>
+    <div class="card">La Genèse</div>
+    <div class="card">Le vide en moi</div>
+    <div class="card">La fin du monde</div>
+
+    <button class="arrow left" onclick="prevCard()">&#8592;</button>
+    <button class="arrow right" onclick="nextCard()">&#8594;</button>
   </div>
 
   <script>
-const arena = document.getElementById("arena");
-const drawBtn = document.getElementById("drawBtn");
+let currentIndex = 0;
+const cards = document.querySelectorAll(".card");
 
-const NB = 4;
-const cards = [];
-let isAnimating = false;
-
-// textes et couleurs des cartes
-const cardData = [
-  { text: "La volonté de Dieu", color: "red" },
-  { text: "La Genèse", color: "yellow" },
-  { text: "Le vide en moi", color: "green" },
-  { text: "La fin du monde", color: "blue" }
-];
-
-// tableau pour vérifier les cartes déjà tirées
-let remainingIndexes = [...Array(NB).keys()];
-
-// placement des cartes en cercle
-for (let i=0; i<NB; i++){
-  const card = document.createElement("div");
-  card.className = "card " + cardData[i].color;
-
-  const front = document.createElement("div");
-  front.className = "face front";
-  front.innerHTML = `<strong>${cardData[i].text}</strong>`;
-
-  const back = document.createElement("div");
-  back.className = "face back";
-
-  card.appendChild(front);
-  card.appendChild(back);
-
-  const angle = (i/NB) * 2*Math.PI;
-  const radius = 210;
-  const x = Math.cos(angle) * radius;
-  const y = Math.sin(angle) * radius;
-  card.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
-
-  arena.appendChild(card);
-  cards.push(card);
+function showCard(index) {
+  cards.forEach((card, i) => {
+    card.classList.remove("active");
+    if (i === index) {
+      card.classList.add("active");
+    }
+  });
 }
 
-function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
-
-async function drawRandomCard(){
-  if(isAnimating) return;
-  if(remainingIndexes.length === 0){
-    alert("Toutes les cartes ont été tirées !");
-    return;
+function prevCard() {
+  if (currentIndex > 0) {
+    currentIndex--;
+    showCard(currentIndex);
   }
-  
-  isAnimating = true;
-  drawBtn.disabled = true;
-
-  arena.classList.add("rotating");
-  await sleep(1500);
-  arena.classList.remove("rotating");
-
-  // Tirage aléatoire sans répétition
-  const randIdx = Math.floor(Math.random() * remainingIndexes.length);
-  const cardIdx = remainingIndexes.splice(randIdx,1)[0];
-  const chosen = cards[cardIdx];
-
-  chosen.classList.add("fullscreen");
-  chosen.style.animation = 'popIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards';
-
-  // Fermer la carte automatiquement après 3 secondes et pouvoir tirer la suivante
-  setTimeout(() => {
-    chosen.classList.remove("fullscreen");
-    chosen.style.animation = '';
-    drawBtn.disabled = false;
-    isAnimating = false;
-  }, 3000);
 }
 
-drawBtn.addEventListener("click", drawRandomCard);
+function nextCard() {
+  if (currentIndex < cards.length - 1) {
+    currentIndex++;
+    showCard(currentIndex);
+  }
+}
   </script>
 </body>
 </html>
