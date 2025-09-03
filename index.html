@@ -96,9 +96,9 @@ h1 {
 
 /* couleurs */
 .card.red    .front { background: #c62828; }
-.card.yellow .front { background: #fbc02d; color:#333; }
-.card.green  .front { background: #2e7d32; }
-.card.blue   .front { background: #1565c0; }
+.card.yellow .front { background: #fbc02d; color:white; }
+.card.green  .front { background: #2e7d32; color:white; }
+.card.blue   .front { background: #1565c0; color:white; }
 
 /* plein écran */
 .card.fullscreen {
@@ -115,29 +115,11 @@ h1 {
 
 .card.fullscreen .front {
   transform: rotateY(0deg) !important;
-  font-size: 48px; /* agrandit le texte */
-  padding: 40px;   /* plus d’espace autour du texte */
+  font-size: 48px;
+  padding: 40px;
 }
 .card.fullscreen .back {
   transform: rotateY(180deg) !important;
-}
-
-.close-btn {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  width: 45px;
-  height: 45px;
-  background: rgba(0, 0, 0, 0.7);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  font-size: 22px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1001;
 }
 
 @keyframes popIn {
@@ -169,7 +151,6 @@ button {
   font-family: inherit;
 }
 button:disabled { background: #aaa; }
-button.secondary { background: #e0e0e0; color: #000; }
   </style>
 </head>
 <body>
@@ -177,17 +158,14 @@ button.secondary { background: #e0e0e0; color: #000; }
   <div class="arena" id="arena"></div>
   <div>
     <button id="drawBtn">🎲 Tirer une carte</button>
-    <button id="resetBtn" class="secondary" disabled>↺ Réinitialiser</button>
   </div>
 
   <script>
 const arena = document.getElementById("arena");
 const drawBtn = document.getElementById("drawBtn");
-const resetBtn = document.getElementById("resetBtn");
 
 const NB = 4;
 const cards = [];
-let chosen = null;
 let isAnimating = false;
 
 // textes et couleurs des cartes
@@ -197,6 +175,9 @@ const cardData = [
   { text: "Le vide en moi", color: "green" },
   { text: "La fin du monde", color: "blue" }
 ];
+
+// tableau pour vérifier les cartes déjà tirées
+let remainingIndexes = [...Array(NB).keys()];
 
 // placement des cartes en cercle
 for (let i=0; i<NB; i++){
@@ -226,7 +207,12 @@ for (let i=0; i<NB; i++){
 function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
 
 async function drawRandomCard(){
-  if(chosen || isAnimating) return;
+  if(isAnimating) return;
+  if(remainingIndexes.length === 0){
+    alert("Toutes les cartes ont été tirées !");
+    return;
+  }
+  
   isAnimating = true;
   drawBtn.disabled = true;
 
@@ -234,38 +220,24 @@ async function drawRandomCard(){
   await sleep(1500);
   arena.classList.remove("rotating");
 
-  const idx = Math.floor(Math.random() * NB);
-  chosen = cards[idx];
+  // Tirage aléatoire sans répétition
+  const randIdx = Math.floor(Math.random() * remainingIndexes.length);
+  const cardIdx = remainingIndexes.splice(randIdx,1)[0];
+  const chosen = cards[cardIdx];
 
   chosen.classList.add("fullscreen");
   chosen.style.animation = 'popIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards';
 
-  const closeBtn = document.createElement("button");
-  closeBtn.className = "close-btn";
-  closeBtn.innerHTML = "✕";
-  closeBtn.onclick = resetAll;
-  chosen.appendChild(closeBtn);
-
-  resetBtn.disabled = false;
-  isAnimating = false;
-}
-
-async function resetAll(){
-  if(!chosen) return;
-
-  const closeBtn = chosen.querySelector(".close-btn");
-  if(closeBtn) closeBtn.remove();
-
-  chosen.classList.remove("fullscreen");
-  chosen.style.animation = '';
-  chosen = null;
-
-  drawBtn.disabled = false;
-  resetBtn.disabled = true;
+  // Fermer la carte automatiquement après 3 secondes et pouvoir tirer la suivante
+  setTimeout(() => {
+    chosen.classList.remove("fullscreen");
+    chosen.style.animation = '';
+    drawBtn.disabled = false;
+    isAnimating = false;
+  }, 3000);
 }
 
 drawBtn.addEventListener("click", drawRandomCard);
-resetBtn.addEventListener("click", resetAll);
   </script>
 </body>
 </html>
