@@ -1,566 +1,362 @@
+<!doctype html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz de Versets Bibliques</title>
-    <style>
-        :root {
-            --primary: #4a90e2;
-            --primary-dark: #357abd;
-            --text-primary: #2c3e50;
-            --text-secondary: #666;
-            --bg-light: #f5f6fa;
-            --white: #ffffff;
-        }
+  <meta charset="utf-8">
+  <title>Tirage d'une carte circulaire</title>
+  <style>
+    :root {
+      --primary-color: #0066ff;
+      --secondary-color: #f0f4ff;
+      --accent-color: #d32f2f;
+      --transition-fast: 0.3s ease;
+      --transition-medium: 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-slow: 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+    html, body {
+      height: 100%;
+      width: 100%;
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at center, var(--secondary-color), #cfd8ff);
+      overflow-x: hidden;
+    }
 
-        body {
-            background-color: var(--bg-light);
-            color: var(--text-primary);
-            line-height: 1.6;
-            padding: 20px;
-        }
+    h1 { 
+      margin-bottom: 20px;
+      color: #333;
+      font-weight: 600;
+      font-size: 2.2em;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: var(--white);
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
+    .arena {
+      position: relative;
+      width: 700px;
+      height: 700px;
+      margin: 20px 0;
+      perspective: 1200px;
+    }
 
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
+    .card {
+      position: absolute;
+      width: 240px;
+      height: 320px;
+      left: 50%;
+      top: 50%;
+      transform-style: preserve-3d;
+      transform: translate(-50%, -50%);
+      transition: all var(--transition-medium);
+      cursor: pointer;
+      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
+    }
 
-        .header h1 {
-            color: var(--text-primary);
-            margin-bottom: 10px;
-        }
+    .card .face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 2px solid #333;
+      border-radius: 12px;
+      background: #fff;
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+      transition: all var(--transition-fast);
+      overflow: hidden;
+    }
 
-        .header p {
-            color: var(--text-secondary);
-        }
+    .card .back {
+      background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
+      font-size: 80px;
+      font-weight: bold;
+      border: 3px solid #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-        .timer-section {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
-            padding: 1%;
-            background: var(--bg-light);
-            border-radius: 8px;
-        }
+    .card .back::before {
+      content: "?";
+      color: var(--accent-color);
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
 
-        .timer-input {
-            width: 80px;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 16px;
-        }
+    .card .front {
+      transform: rotateY(180deg);
+    }
 
-        .timer-display {
-            font-size: 24px;
-            font-weight: bold;
-            min-width: 80px;
-            text-align: center;
-        }
+    .card.fullscreen .front { transform: rotateY(0deg) !important; }
+    .card.fullscreen .back { transform: rotateY(180deg) !important; }
 
-        .verse-section {
-            background: var(--white);
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            min-height: 200px;
-            border: 1px solid #eee;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
+    .card.fullscreen {
+      position: fixed !important;
+      top: 50%;
+      left: 50%;
+      width: min(600px, 90vw) !important;
+      height: min(840px, 90vh) !important;
+      transform: translate(-50%, -50%) rotateY(0deg) scale(1) !important;
+      z-index: 1000;
+      transition: all var(--transition-slow);
+      filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.3));
+    }
 
-        .verse-reference {
-            font-size: 1.5em;
-            margin-bottom: 15px;
-            color: var(--primary);
-        }
+    .close-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      width: 45px;
+      height: 45px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      font-size: 22px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1001;
+      transition: all var(--transition-fast);
+      backdrop-filter: blur(10px);
+    }
 
-        .verse-content {
-            font-size: 1.2em;
-            text-align: center;
-            font-style: italic;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
+    .close-btn:hover {
+      background: rgba(0, 0, 0, 0.9);
+      transform: scale(1.1);
+    }
 
-        .verse-content.visible {
-            opacity: 1;
-        }
+    @keyframes popIn {
+      0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+      50% { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
 
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
+    @keyframes cardHover {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-8px) scale(1.02); }
+    }
 
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+    .card:hover:not(.fullscreen) {
+      animation: cardHover 0.6s ease-in-out;
+      filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.25));
+    }
 
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-        }
+    .rotating {
+      animation: spinSmooth 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-        .btn-primary:hover {
-            background-color: var(--primary-dark);
-        }
+    @keyframes spinSmooth {
+      0% { transform: rotate(0deg); filter: blur(0px); }
+      50% { transform: rotate(180deg); filter: blur(2px); }
+      100% { transform: rotate(360deg); filter: blur(0px); }
+    }
 
-        .btn-secondary {
-            background-color: var(--bg-light);
-            color: var(--text-primary);
-        }
+    button {
+      padding: 20px 40px;
+      margin: 15px;
+      font-size: 18px;
+      border: none;
+      border-radius: 12px;
+      background: var(--primary-color);
+      color: #fff;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
+      font-family: inherit;
+    }
 
-        .btn-secondary:hover {
-            background-color: #e0e0e0;
-        }
+    button:hover:not(:disabled) {
+      background: #0047b3;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 102, 255, 0.4);
+    }
 
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 20px;
-            margin-bottom: 20px;
-            padding: 15px;
-            background: var(--bg-light);
-            border-radius: 8px;
-        }
+    button:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
 
-        .stat-item {
-            text-align: center;
-        }
+    button.secondary {
+      background: #e0e0e0;
+      color: #000;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
 
-        .stat-value {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--primary);
-        }
-
-        .stat-label {
-            color: var(--text-secondary);
-        }
-
-        .verse-list {
-            max-height: 300px;
-            overflow-y: auto;
-            border: 1px solid #eee;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 20px;
-            display: none;
-        }
-
-        .verse-list.visible {
-            display: block;
-        }
-
-        .verse-list-item {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .verse-list-item:last-child {
-            border-bottom: none;
-        }
-        .audio-controls {
-            background: var(--bg-light);
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-
-        .audio-settings {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-            margin-top: 10px;
-        }
-
-        .audio-setting {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .audio-setting label {
-            color: var(--text-secondary);
-        }
-
-        .audio-setting select,
-        .audio-setting input {
-            padding: 5px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-    </style>
+    button.secondary:hover:not(:disabled) {
+      background: #d0d0d0;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Quiz de Versets Bibliques</h1>
-            <p>Apprenez et méditez sur la Parole de Dieu</p>
-        </div>
+  <h1>Tirage circulaire</h1>
+  <div class="arena" id="arena"></div>
+  <div>
+    <button id="drawBtn">🎲 Tirer une carte</button>
+    <button id="resetBtn" class="secondary" disabled>↺ Réinitialiser</button>
+  </div>
 
-        <div class="timer-section">
-            <label for="timer-input">Temps (secondes):</label>
-            <input type="number" id="timer-input" class="timer-input" value="60" min="1">
-            <button id="timer-toggle" class="btn btn-secondary">⏸️</button>
-            <div id="timer-display" class="timer-display">60</div>
-        </div>
+  <script>
+    const arena = document.getElementById("arena");
+    const drawBtn = document.getElementById("drawBtn");
+    const resetBtn = document.getElementById("resetBtn");
 
-        <div class="verse-section">
-            <div id="verse-reference" class="verse-reference">Cliquez sur "Nouveau Verset" pour commencer</div>
-            <div id="verse-content" class="verse-content"></div>
-        </div>
+    const NB = 4;
+    const cards = [];
+    let chosen = null;
+    let isAnimating = false;
 
-        <div class="button-group">
-            <button id="new-verse" class="btn btn-primary">🔄 Nouveau Verset</button>
-            <button id="toggle-verse" class="btn btn-secondary">👁️ Révéler le Verset</button>
-            <button id="toggle-list" class="btn btn-secondary">📝 Voir la Liste</button>
-        </div>
+    const images = [
+      "attached_assets/image_1756815318568.jpeg",
+      "attached_assets/image_1756815327458.jpeg", 
+      "attached_assets/image_1756815334356.jpeg",
+      "attached_assets/image_1756815353253.jpeg"
+    ];
 
-        <div class="stats">
-            <div class="stat-item">
-                <div id="verses-seen" class="stat-value">0</div>
-                <div class="stat-label">Versets vus</div>
-            </div>
-            <div class="stat-item">
-                <div id="verses-remaining" class="stat-value">5</div>
-                <div class="stat-label">Versets restants</div>
-            </div>
-        </div>
+    for (let i=0; i<NB; i++){
+      const card = document.createElement("div");
+      card.className = "card";
 
-        <div id="verse-list" class="verse-list"></div>
-    </div>
-    <div class="audio-controls">
-            <div class="button-group">
-                <button id="play-audio" class="btn btn-primary">🔊 Lire</button>
-                <button id="stop-audio" class="btn btn-secondary">⏹️ Arrêter</button><div class="audio-setting">
-                    <label for="loop-checkbox">Répéter:</label>
-                    <input type="checkbox" id="loop-checkbox">
-                </div>
-                </div>
-                <div class="audio-setting">
-                    <label for="speed-range">Vitesse:</label>
-                    <input type="range" id="speed-range" min="0.5" max="2" step="0.1" value="1">
-                    <span id="speed-value">1.0x</span>
-                </div>
-            </div>
-            <div class="audio-settings">
-                <div class="audio-setting">
-                    <label for="voice-select">Voix:</label>
-                    <select id="voice-select"></select>
-                
-                
-            </div>
-        </div>
-    </div>
-    <script>
-        // Base de données des versets
-        const versets = [
-              {
-                  id: 1,
-                  reference: "Osée‬ ‭4‬:‭6‬",
-                  contenu: "Mon peuple est détruit, parce qu’il lui manque la connaissance. Puisque tu as rejeté la connaissance, Je te rejetterai, et tu seras dépouillé de mon sacerdoce; Puisque tu as oublié la loi de ton Dieu, J’oublierai aussi tes enfants.‭‭"
-              },
-              {
-                  id: 2,
-                  reference: "‭‭2 Pierre‬ ‭2‬:‭20‬-‭21‬",
-                  contenu: "En effet, si, après s’être retirés des souillures du monde, par la connaissance du Seigneur et Sauveur Jésus-Christ, ils s’y engagent de nouveau et sont vaincus, leur dernière condition est pire que la première. Car mieux valait pour eux n’avoir pas connu la voie de la justice, que de se détourner, après l’avoir connue, du saint commandement qui leur avait été donné."
-              },
-              {
-                  id: 3,
-                  reference: "‭‭Jérémie‬ ‭5‬:‭14‬",
-                  contenu: "C’est pourquoi ainsi parle l’Éternel, le Dieu des armées: Parce que vous avez dit cela, Voici, je veux que ma parole dans ta bouche soit du feu, Et ce peuple du bois, et que ce feu les consume."
-              },
-              {
-                  id: 4,
-                  reference: "‭‭Jean‬ ‭17‬:‭3‬",
-                  contenu: "Or, la vie éternelle, c’est qu’ils te connaissent, toi, le seul vrai Dieu, et celui que tu as envoyé, Jésus-Christ."
-              },
-              {
-                  id: 5,
-                  reference: "‭‭Apocalypse‬ ‭21‬:‭6‬",
-                  contenu: "Et il me dit: C’est fait! Je suis l’alpha et l’oméga, le commencement et la fin. A celui qui a soif je donnerai de la source de l’eau de la vie, gratuitement."
-              },
-              {
-                  id: 6,
-                  reference: "‭‭Jean‬ ‭6‬:‭63‬",
-                  contenu: "C’est l’esprit qui vivifie; la chair ne sert de rien. Les paroles que je vous ai dites sont esprit et vie."
-              },
-              {
-                  id: 7,
-                  reference: "‭‭Osée‬ ‭6‬:‭6‬",
-                  contenu: "Car j’aime la piété et non les sacrifices, Et la connaissance de Dieu plus que les holocaustes."
-              },
-              {
-                  id: 8,
-                  reference: "Jean 1:1",
-                  contenu: "Au commencement était la Parole, et la Parole était avec Dieu, et la Parole était Dieu."
-              },
-              {
-                  id: 9,
-                  reference: "‭‭Matthieu‬ ‭7‬:‭21‬",
-                  contenu: "Ceux qui me disent: Seigneur, Seigneur! N’entreront pas tous dans le royaume des cieux, mais celui-là seul qui fait la volonté de mon Père qui est dans les cieux."
-              },
-              {
-                  id: 10,
-                  reference: "‭‭Matthieu‬ ‭6‬:‭31‬-‭33‬",
-                  contenu: "Ne vous inquiétez donc point, et ne dites pas: Que mangerons-nous? Que boirons-nous? De quoi serons-nous vêtus? Car toutes ces choses, ce sont les païens qui les recherchent. Votre Père céleste sait que vous en avez besoin. Cherchez premièrement le royaume et la justice de Dieu; et toutes ces choses vous seront données par-dessus."
-              },
-              {
-                  id: 11,
-                  reference: "Jean‬ ‭16‬:‭25‬",
-                  contenu: "Je vous ai dit ces choses en paraboles. L’heure vient où je ne vous parlerai plus en paraboles, mais où je vous parlerai ouvertement du Père."
-              },
-              {
-                  id: 12,
-                  reference: "‭‭Proverbes‬ ‭16‬:‭9‬",
-                  contenu: "Le cœur de l’homme médite sa voie, Mais c’est l’Éternel qui dirige ses pas."
-              },
-              {
-                  id: 13,
-                  reference: "‭‭Jean‬ ‭14‬:‭23‬",
-                  contenu: "Jésus lui répondit: Si quelqu’un m’aime, il gardera ma parole, et mon Père l’aimera; nous viendrons à lui, et nous ferons notre demeure chez lui."
-              },
-              {
-                  id: 14,
-                  reference: "Luc‬ ‭12‬:‭49‬",
-                  contenu: "Je suis venu jeter un feu sur la terre, et qu’ai-je à désirer, s’il est déjà allumé?"
-              },
-              {
-                  id: 15,
-                  reference: "‭‭Psaumes‬ ‭14‬:‭1‬-‭2‬",
-                  contenu: "Au chef des chantres. De David. L’insensé dit en son cœur: Il n’y a point de Dieu! Ils se sont corrompus, ils ont commis des actions abominables; Il n’en est aucun qui fasse le bien. L’Éternel, du haut des cieux, regarde les fils de l’homme, Pour voir s’il y a quelqu’un qui soit intelligent, Qui cherche Dieu."
-              },
+      const front = document.createElement("div");
+      front.className = "face front";
+      front.innerHTML = `<img src="${images[i]}" 
+        style="width:100%;height:100%;object-fit:cover;border-radius:10px;" />`;
 
-          ];
-        // État de l'application
-        let versetsNonUtilises = [...versets];
-        let versetActuel = null;
-        let timerInterval = null;
-        let isTimerRunning = false;
-        let versetVisible = false;
-        let versetsSeen = 0;
+      const back = document.createElement("div");
+      back.className = "face back";
 
-        // Éléments du DOM
-        const timerInput = document.getElementById('timer-input');
-        const timerDisplay = document.getElementById('timer-display');
-        const timerToggle = document.getElementById('timer-toggle');
-        const verseReference = document.getElementById('verse-reference');
-        const verseContent = document.getElementById('verse-content');
-        const newVerseBtn = document.getElementById('new-verse');
-        const toggleVerseBtn = document.getElementById('toggle-verse');
-        const toggleListBtn = document.getElementById('toggle-list');
-        const versesList = document.getElementById('verse-list');
-        const versesSeeDisplay = document.getElementById('verses-seen');
-        const versesRemainingDisplay = document.getElementById('verses-remaining');
+      card.appendChild(front);
+      card.appendChild(back);
 
-        // Fonctions
-        function getRandomVerse() {
-            if (versetsNonUtilises.length === 0) {
-                versetsNonUtilises = [...versets];
-            }
+      const angle = (i/NB) * 2*Math.PI;
+      const radius = 210;
+      const x = Math.cos(angle) * radius;
+      const y = Math.sin(angle) * radius;
+      card.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
 
-            const randomIndex = Math.floor(Math.random() * versetsNonUtilises.length);
-            const verse = versetsNonUtilises[randomIndex];
-            versetsNonUtilises.splice(randomIndex, 1);
+      card.style.opacity = '0';
+      card.style.transform += ' scale(0.5)';
+      
+      setTimeout(() => {
+        card.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+        card.style.opacity = '1';
+        card.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px) scale(1)`;
+      }, i * 150);
 
-            return verse;
-        }
+      arena.appendChild(card);
+      cards.push(card);
+    }
 
-        function updateTimer() {
-            const currentTime = parseInt(timerDisplay.textContent);
-            if (currentTime > 0) {
-                timerDisplay.textContent = currentTime - 1;
-            } else {
-                stopTimer();
-            }
-        }
+    function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
 
-        function startTimer() {
-            if (!isTimerRunning) {
-                isTimerRunning = true;
-                timerToggle.textContent = '⏸️';
-                timerInterval = setInterval(updateTimer, 1000);
-            }
-        }
+    function animateElement(element, keyframes, options = {}) {
+      return element.animate(keyframes, {
+        duration: 600,
+        easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+        fill: 'forwards',
+        ...options
+      });
+    }
 
-        function stopTimer() {
-            if (isTimerRunning) {
-                isTimerRunning = false;
-                timerToggle.textContent = '▶️';
-                clearInterval(timerInterval);
-            }
-        }
+    async function drawRandomCard(){
+      if(chosen || isAnimating) return;
+      isAnimating = true;
+      drawBtn.disabled = true;
+      resetBtn.disabled = true;
 
-        function resetTimer() {
-            stopTimer();
-            timerDisplay.textContent = timerInput.value;
-        }
+      cards.forEach((card, i) => {
+        setTimeout(() => {
+          animateElement(card, [
+            { transform: card.style.transform },
+            { transform: card.style.transform + ' scale(1.05)' },
+            { transform: card.style.transform }
+          ], { duration: 300 });
+        }, i * 50);
+      });
 
-        function updateStats() {
-            versesSeeDisplay.textContent = versetsSeen;
-            versesRemainingDisplay.textContent = versetsNonUtilises.length;
-        }
+      await sleep(500);
 
-        // Gestionnaires d'événements
-        newVerseBtn.addEventListener('click', () => {
-            versetActuel = getRandomVerse();
-            verseReference.textContent = versetActuel.reference;
-            verseContent.textContent = versetActuel.contenu;
-            verseContent.classList.remove('visible');
-            versetVisible = false;
-            versetsSeen++;
-            updateStats();
-            resetTimer();
-            startTimer();
-        });
+      arena.classList.add("rotating");
+      await sleep(1500);
+      arena.classList.remove("rotating");
 
-        toggleVerseBtn.addEventListener('click', () => {
-            versetVisible = !versetVisible;
-            verseContent.classList.toggle('visible');
-            toggleVerseBtn.textContent = versetVisible ? '🙈 Cacher le Verset' : '👁️ Révéler le Verset';
-        });
+      const idx = Math.floor(Math.random() * NB);
+      chosen = cards[idx];
 
-        toggleListBtn.addEventListener('click', () => {
-            versesList.classList.toggle('visible');
-            toggleListBtn.textContent = versesList.classList.contains('visible') ? '📝 Cacher la Liste' : '📝 Voir la Liste';
+      await animateElement(chosen, [
+        { transform: chosen.style.transform },
+        { transform: chosen.style.transform + ' scale(1.2) rotateZ(5deg)' },
+        { transform: chosen.style.transform + ' scale(1.1)' }
+      ], { duration: 400 }).finished;
 
-            if (versesList.classList.contains('visible')) {
-                versesList.innerHTML = versets.map(verse => `
-                    <div class="verse-list-item">
-                        <strong>${verse.reference}</strong>
-                        <p>${verse.contenu}</p>
-                    </div>
-                `).join('');
-            }
-        });
+      await sleep(200);
 
-        timerToggle.addEventListener('click', () => {
-            if (isTimerRunning) {
-                stopTimer();
-            } else {
-                startTimer();
-            }
-        });
+      chosen.classList.add("fullscreen");
+      chosen.style.animation = 'popIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards';
+      
+      const closeBtn = document.createElement("button");
+      closeBtn.className = "close-btn";
+      closeBtn.innerHTML = "✕";
+      closeBtn.onclick = resetAll;
+      closeBtn.style.opacity = '0';
+      closeBtn.style.transform = 'scale(0.5)';
+      chosen.appendChild(closeBtn);
+      
+      setTimeout(() => {
+        animateElement(closeBtn, [
+          { opacity: 0, transform: 'scale(0.5)' },
+          { opacity: 1, transform: 'scale(1.1)' },
+          { opacity: 1, transform: 'scale(1)' }
+        ], { duration: 400 });
+      }, 300);
+      
+      isAnimating = false;
+      drawBtn.disabled = true;
+      resetBtn.disabled = false;
+    }
 
-        timerInput.addEventListener('change', () => {
-            resetTimer();
-        });
+    async function resetAll(){
+      if(!chosen || isAnimating) return;
+      isAnimating = true;
+      
+      const closeBtn = chosen.querySelector(".close-btn");
+      if(closeBtn) {
+        await animateElement(closeBtn, [
+          { opacity: 1, transform: 'scale(1)' },
+          { opacity: 0, transform: 'scale(0.5)' }
+        ], { duration: 200 }).finished;
+        closeBtn.remove();
+      }
+      
+      await animateElement(chosen, [
+        { transform: 'translate(-50%, -50%) rotateY(0deg) scale(1)' },
+        { transform: 'translate(-50%, -50%) rotateY(0deg) scale(0.8)' },
+        { transform: chosen.style.transform.replace(' scale(1.1)', '') + ' scale(0.9)' },
+        { transform: chosen.style.transform.replace(' scale(1.1)', '') }
+      ], { duration: 600 }).finished;
+      
+      chosen.classList.remove("fullscreen");
+      chosen.style.animation = '';
+      chosen = null;
+      
+      isAnimating = false;
+      drawBtn.disabled = false;
+      resetBtn.disabled = true;
+    }
 
-        // Initialisation des statistiques
-        updateStats();
-        const playAudioBtn = document.getElementById('play-audio');
-        const stopAudioBtn = document.getElementById('stop-audio');
-        const voiceSelect = document.getElementById('voice-select');
-        const speedRange = document.getElementById('speed-range');
-        const speedValue = document.getElementById('speed-value');
-        const loopCheckbox = document.getElementById('loop-checkbox');
-
-        // Variables pour la gestion de l'audio
-        let speechSynthesis = window.speechSynthesis;
-        let isPlaying = false;
-        let currentUtterance = null;
-
-        // Initialisation des voix disponibles
-        function initializeVoices() {
-            const voices = speechSynthesis.getVoices();
-            voiceSelect.innerHTML = voices
-                .filter(voice => voice.lang.startsWith('fr'))
-                .map(voice => `<option value="${voice.name}">${voice.name}</option>`)
-                .join('');
-        }
-
-        // Attendre que les voix soient chargées
-        speechSynthesis.onvoiceschanged = initializeVoices;
-        initializeVoices();
-
-        // Fonction pour lire le verset en audio
-        function playVerse() {
-            if (!versetActuel) return;
-
-            // Arrêter la lecture en cours
-            stopAudio();
-
-            const text = `${versetActuel.reference}. ${versetActuel.contenu}`;
-            currentUtterance = new SpeechSynthesisUtterance(text);
-
-            // Configurer les paramètres de lecture
-            const selectedVoice = speechSynthesis.getVoices().find(voice => voice.name === voiceSelect.value);
-            if (selectedVoice) currentUtterance.voice = selectedVoice;
-
-            currentUtterance.rate = parseFloat(speedRange.value);
-            currentUtterance.lang = 'fr-FR';
-
-            // Gérer la lecture en boucle
-            if (loopCheckbox.checked) {
-                currentUtterance.onend = () => {
-                    if (loopCheckbox.checked) playVerse();
-                };
-            }
-
-            speechSynthesis.speak(currentUtterance);
-            isPlaying = true;
-            playAudioBtn.textContent = '⏸️ Pause';
-        }
-
-        // Fonction pour arrêter la lecture
-        function stopAudio() {
-            speechSynthesis.cancel();
-            isPlaying = false;
-            playAudioBtn.textContent = '🔊 Lire';
-        }
-
-        // Gestionnaires d'événements pour l'audio
-        playAudioBtn.addEventListener('click', () => {
-            if (isPlaying) {
-                stopAudio();
-            } else {
-                playVerse();
-            }
-        });
-
-        stopAudioBtn.addEventListener('click', stopAudio);
-
-        speedRange.addEventListener('input', (e) => {
-            const speed = parseFloat(e.target.value);
-            speedValue.textContent = `${speed.toFixed(1)}x`;
-            if (isPlaying) {
-                // Redémarrer la lecture avec la nouvelle vitesse
-                playVerse();
-            }
-        });
-
-        // Arrêter l'audio quand on change de verset
-        newVerseBtn.addEventListener('click', stopAudio);
-    </script>
+    drawBtn.addEventListener("click", drawRandomCard);
+    resetBtn.addEventListener("click", resetAll);
+  </script>
 </body>
 </html>
